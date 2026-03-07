@@ -1,0 +1,3 @@
+id	name	founder_id	mentor_id
+1	NexGen AI	1	1
+2	AI App builder	5	NULL

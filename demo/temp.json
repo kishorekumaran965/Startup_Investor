@@ -1,0 +1,26 @@
+{
+    "value":  [
+                  {
+                      "content":  "New message from A",
+                      "createdAt":  "2026-02-26T23:37:45.277002",
+                      "id":  13,
+                      "read":  false,
+                      "type":  "NEW_MESSAGE"
+                  },
+                  {
+                      "content":  "New message from A",
+                      "createdAt":  "2026-02-26T23:32:25.396126",
+                      "id":  12,
+                      "read":  false,
+                      "type":  "NEW_MESSAGE"
+                  },
+                  {
+                      "content":  "New message from A",
+                      "createdAt":  "2026-02-26T23:29:18.104471",
+                      "id":  11,
+                      "read":  false,
+                      "type":  "NEW_MESSAGE"
+                  }
+              ],
+    "Count":  3
+}

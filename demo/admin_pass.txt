@@ -1,0 +1,2 @@
+email	password
+admin@test.com	$2a$10$dZ59sb3muXGATq4Muf3dBunW5fOPBOxmMXfa9viwuYOdpBDY.WNhC

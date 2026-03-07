@@ -1,0 +1,9 @@
+id	name	email	role
+1	Founder	founder@test.com	STARTUP
+2	Investor	investor@test.com	INVESTOR
+3	Dr. Mentor	mentor@test.com	MENTOR
+4	Admin	admin@test.com	ADMIN
+5	kishore	Kishore@gmail.com	STARTUP
+6	Mentor	Mentor@gmail.com	MENTOR
+7	Manikandan	Mani@gmail.cpm	STARTUP
+8	John	John@gmail.com	MENTOR
