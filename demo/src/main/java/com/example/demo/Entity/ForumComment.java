@@ -10,26 +10,23 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class MentorshipRequest {
+public class ForumComment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "startup_id", nullable = false)
-    private Startup startup;
-
-    @ManyToOne
-    @JoinColumn(name = "mentor_id", nullable = false)
-    private Mentor mentor;
-
-    private String status = "PENDING"; // PENDING, APPROVED, REJECTED
-
     @Column(length = 2000)
-    private String message;
+    private String content;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private User author;
+
+    @ManyToOne
+    @JoinColumn(name = "post_id")
+    private ForumPost post;
 
     private LocalDateTime createdAt;
-    private LocalDateTime expiryDate;
 
     @PrePersist
     protected void onCreate() {

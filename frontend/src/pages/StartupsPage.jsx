@@ -168,44 +168,46 @@ export default function StartupsPage() {
             ) : (
                 <div className="grid-auto">
                     {filtered.map((s) => (
-                        <div key={s.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                            <div className="flex-between">
-                                <div>
-                                    <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{s.name}</h3>
+                        <div key={s.id} className="card" style={{ display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
+                            <div style={{ padding: '24px 20px 16px', flex: 1 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                                     <div style={{ display: 'flex', gap: 6 }}>
-                                        <span className={`badge ${stageColors[s.stage] || 'badge-purple'}`}>{s.stage || 'IDEA'}</span>
-                                        {s.industry && <span className="badge badge-cyan">{s.industry}</span>}
+                                        <span className={`badge ${stageColors[s.stage] || 'badge-purple'}`} style={{ fontSize: 10 }}>{s.stage || 'IDEA'}</span>
+                                        {s.industry && <span className="badge badge-cyan" style={{ fontSize: 10 }}>{s.industry}</span>}
                                     </div>
+                                    <div style={{ fontSize: 24 }}>🚀</div>
                                 </div>
-                                <div style={{ fontSize: 28 }}>🚀</div>
+                                <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>{s.name}</h3>
+                                <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                    {s.description}
+                                </p>
+                                
+                                {s.fundingGoal && (
+                                    <div style={{ marginTop: 16, padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: 10 }}>
+                                        <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>Funding Goal</div>
+                                        <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--success)' }}>
+                                            ${Number(s.fundingGoal).toLocaleString()}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
-                            <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                                {s.description?.slice(0, 120)}{s.description?.length > 120 ? '...' : ''}
-                            </p>
-
-                            {s.fundingGoal && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                    <span style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Goal:</span>
-                                    <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--success)' }}>
-                                        ${Number(s.fundingGoal).toLocaleString()}
-                                    </span>
-                                </div>
-                            )}
-
-                            <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                            <div style={{ padding: '12px 20px', background: 'rgba(255,255,255,0.02)', borderTop: '1px solid var(--border)', display: 'flex', gap: 8 }}>
                                 {user?.role !== 'ADMIN' && s.founder?.id === user?.id && (
                                     <button
                                         className="btn btn-secondary btn-sm"
                                         onClick={() => { setSelected(s); setShowModal(true); }}
                                         style={{ flex: 1 }}
                                     >
-                                        ✏️ Edit
+                                        ✏️ Edit Startup
                                     </button>
                                 )}
                                 {user?.role === 'ADMIN' && (
-                                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(s.id)}>🗑</button>
+                                    <button className="btn btn-danger btn-sm" style={{ flexShrink: 0 }} onClick={() => handleDelete(s.id)}>🗑 Delete</button>
                                 )}
+                                <button className="btn btn-primary btn-sm" style={{ flex: 1 }}>
+                                    View Details
+                                </button>
                             </div>
                         </div>
                     ))}

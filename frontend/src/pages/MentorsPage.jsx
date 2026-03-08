@@ -1,7 +1,147 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { mentorsApi, messagesApi, startupsApi, usersApi, mentorshipRequestsApi } from '../api';
+import { mentorsApi, messagesApi, startupsApi, usersApi, mentorshipRequestsApi, feedbackApi } from '../api';
 import { useAuth } from '../context/AuthContext';
+
+function FeedbackModal({ target, onClose, currentUserId, type = 'MENTOR' }) {
+    const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [myReview, setMyReview] = useState({ rating: 5, comment: '', isNew: true });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const loadReviews = async () => {
+        setLoading(true);
+        try {
+            const data = await feedbackApi.getForTarget(target.id, type);
+            setReviews(data);
+            const existing = data.find(r => r.reviewerId === currentUserId);
+            if (existing) {
+                setMyReview({ ...existing, isNew: false });
+            }
+        } catch (e) { console.error(e); }
+        finally { setLoading(false); }
+    };
+
+    useEffect(() => { loadReviews(); }, [target.id]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            if (myReview.isNew) {
+                await feedbackApi.leave({
+                    rating: myReview.rating,
+                    comment: myReview.comment,
+                    reviewerId: currentUserId,
+                    targetId: target.id,
+                    targetType: type
+                });
+            } else {
+                await feedbackApi.update(myReview.id, {
+                    rating: myReview.rating,
+                    comment: myReview.comment
+                });
+            }
+            loadReviews();
+            alert('Feedback submitted successfully!');
+        } catch (e) { alert(e.message); }
+        finally { setIsSubmitting(false); }
+    };
+
+    const renderStars = (rating) => '⭐'.repeat(rating) + '☆'.repeat(5 - rating);
+
+    return (
+        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+            <div className="modal-box" style={{ maxWidth: 500, padding: 0, overflow: 'hidden' }}>
+                <div style={{ padding: '24px 24px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)' }}>
+                    <h2 className="modal-title" style={{ margin: 0 }}>⭐ Reviews & Ratings</h2>
+                    <button className="modal-close" onClick={onClose}>✕</button>
+                </div>
+                
+                <div style={{ padding: '24px 24px 0' }}>
+                    <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{ width: 44, height: 44, borderRadius: 10, background: 'var(--accent-glow)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 700 }}>
+                            {(target.userName || target.name || '?').charAt(0)}
+                        </div>
+                        <div>
+                            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{target.userName || target.name}</div>
+                            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Feedback History</div>
+                        </div>
+                    </div>
+
+                    <div style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: 8, marginBottom: 20 }}>
+                        {loading ? <div className="spinner" style={{ margin: '20px auto' }} /> : reviews.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '40px 0', border: '1px dashed var(--border)', borderRadius: 12 }}>
+                                <div style={{ fontSize: 32, marginBottom: 10 }}>📝</div>
+                                <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>No reviews yet. Be the first to share your experience!</p>
+                            </div>
+                        ) : (
+                            reviews.map(r => (
+                                <div key={r.id} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: 12, padding: 16, marginBottom: 12 }}>
+                                    <div className="flex-between" style={{ marginBottom: 8 }}>
+                                        <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-primary)' }}>{r.reviewerName}</span>
+                                        <span style={{ color: '#f59e0b', fontSize: 12 }}>{renderStars(r.rating)}</span>
+                                    </div>
+                                    <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{r.comment}</p>
+                                    <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
+                                        {new Date(r.createdAt).toLocaleDateString()}
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+
+                {currentUserId && (
+                    <div style={{ background: 'rgba(255,255,255,0.03)', borderTop: '1px solid var(--border)', padding: '24px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                            <h4 style={{ fontSize: 14, fontWeight: 700 }}>{myReview.isNew ? 'Leave a Review' : 'Your Review'}</h4>
+                            {!myReview.isNew && !myReview.isEditable && (
+                                <span style={{ fontSize: 11, color: 'var(--warning)', fontWeight: 600 }}>🔒 History Locked</span>
+                            )}
+                        </div>
+                        
+                        <form onSubmit={handleSubmit}>
+                            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                                {[1, 2, 3, 4, 5].map(s => (
+                                    <span 
+                                        key={s} 
+                                        style={{ 
+                                            fontSize: 24, cursor: (myReview.isNew || myReview.isEditable) ? 'pointer' : 'default', transition: '0.2s',
+                                            opacity: s <= myReview.rating ? 1 : 0.2
+                                        }}
+                                        onClick={() => (myReview.isNew || myReview.isEditable) && setMyReview({ ...myReview, rating: s })}
+                                    >
+                                        ⭐
+                                    </span>
+                                ))}
+                            </div>
+                            <div className="form-group">
+                                <textarea 
+                                    className="form-textarea" 
+                                    style={{ height: 100, borderRadius: 12, background: 'var(--bg-primary)' }} 
+                                    placeholder="Describe your collaboration/mentorship experience..." 
+                                    disabled={!myReview.isNew && !myReview.isEditable}
+                                    value={myReview.comment} 
+                                    onChange={e => setMyReview({ ...myReview, comment: e.target.value })} 
+                                    required 
+                                />
+                            </div>
+                            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 16 }}>
+                                <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                                {(myReview.isNew || myReview.isEditable) && (
+                                    <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                                        {isSubmitting ? 'Saving...' : (myReview.isNew ? 'Submit' : 'Update')}
+                                    </button>
+                                )}
+                            </div>
+                        </form>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
 
 function ChatModal({ targetUser, onClose, currentUserId }) {
     const [messages, setMessages] = useState([]);
@@ -153,7 +293,11 @@ function RequestMentorshipModal({ mentor, onClose, currentUserId }) {
                     <h2 className="modal-title">🚀 Request Mentorship</h2>
                     <button className="modal-close" onClick={onClose}>✕</button>
                 </div>
-                <p style={{ marginBottom: 16 }}>Apply for mentorship from <strong>{mentor.userName}</strong>.</p>
+                <p style={{ marginBottom: 12 }}>Apply for mentorship from <strong>{mentor.userName}</strong>.</p>
+                <div style={{ background: 'var(--surface)', padding: '10px 14px', borderRadius: 8, fontSize: 12, border: '1px solid var(--border)', marginBottom: 20, display: 'flex', gap: 10, alignItems: 'center' }}>
+                    <span style={{ fontSize: 18 }}>⏳</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>Note: Approved mentorships are active for <strong>30 days</strong>.</span>
+                </div>
                 {loading ? <div className="spinner" /> : (
                     <>
                         <div className="form-group">
@@ -262,6 +406,7 @@ export default function MentorsPage() {
     const [showApply, setShowApply] = useState(false);
     const [requestTarget, setRequestTarget] = useState(null);
     const [editingMentor, setEditingMentor] = useState(null);
+    const [feedbackTarget, setFeedbackTarget] = useState(null);
     const [myProfile, setMyProfile] = useState(null);
     const [search, setSearch] = useState('');
     const [error, setError] = useState(null);
@@ -353,6 +498,7 @@ export default function MentorsPage() {
             {showApply && <ApplyMentorModal onClose={() => setShowApply(false)} onApply={handleApply} currentUserId={user?.id} />}
             {requestTarget && <RequestMentorshipModal mentor={requestTarget} onClose={() => setRequestTarget(null)} currentUserId={user?.id} />}
             {editingMentor && <EditMentorModal mentor={editingMentor} onClose={() => setEditingMentor(null)} onSave={handleUpdateMentor} />}
+            {feedbackTarget && <FeedbackModal target={feedbackTarget} onClose={() => setFeedbackTarget(null)} currentUserId={user?.id} />}
 
             {error && <div className="alert alert-error">⚠ {error}</div>}
 
@@ -442,74 +588,118 @@ export default function MentorsPage() {
             ) : (
                 <div className="grid-auto">
                     {filtered.map(item => (
-                        <div key={item.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                            <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                        <div key={item.id} className="card" style={{ display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
+                            {/* Card Header Area */}
+                            <div style={{ padding: '24px 20px 0', display: 'flex', gap: 16 }}>
                                 <div style={{
-                                    width: 52, height: 52, borderRadius: '50%',
-                                    background: 'linear-gradient(135deg, #f59e0b, #6366f1)',
+                                    width: 60, height: 60, borderRadius: 'var(--radius-md)',
+                                    background: 'linear-gradient(135deg, var(--accent), var(--accent-3))',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    color: '#fff', fontSize: 20, fontWeight: 700, flexShrink: 0,
+                                    color: '#fff', fontSize: 24, fontWeight: 800, flexShrink: 0,
+                                    boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)'
                                 }}>
                                     {(item.userName || '?').charAt(0).toUpperCase()}
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 2 }}>{item.userName || 'Mentor'}</h3>
-                                    {item.currentTitle && <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>{item.currentTitle}</div>}
-                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                                        <span className="badge" style={{ background: (statusColors[item.status] || '#6366f1') + '22', color: statusColors[item.status] || '#6366f1', border: `1px solid ${(statusColors[item.status] || '#6366f1')}44` }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                        <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{item.userName || 'Mentor'}</h3>
+                                        <span className="badge" style={{ 
+                                            background: (statusColors[item.status] || '#6366f1') + '15', 
+                                            color: statusColors[item.status] || '#6366f1',
+                                            border: `1px solid ${(statusColors[item.status] || '#6366f1')}30`,
+                                            fontSize: 10
+                                        }}>
                                             {item.status}
                                         </span>
+                                    </div>
+                                    <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>{item.currentTitle || 'Professional Mentor'}</div>
+                                    <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 12 }}>
                                         {item.yearsOfExperience !== undefined && (
-                                            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>⭐ {item.yearsOfExperience}Y Experience</span>
+                                            <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                <span style={{ color: '#f59e0b' }}>⭐</span> {item.yearsOfExperience}Y Exp
+                                            </span>
+                                        )}
+                                        {item.startups?.length > 0 && (
+                                            <span style={{ color: 'var(--accent-2)', fontWeight: 600 }}>
+                                                🚀 {item.startups.length} Active
+                                            </span>
                                         )}
                                     </div>
                                 </div>
                             </div>
-                            <div className="grid-2" style={{ gap: 12 }}>
-                                {item.expertise && (
-                                    <div>
-                                        <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>Expertise</div>
-                                        <div style={{ fontSize: 14, color: 'var(--text-primary)', fontWeight: 500 }}>{item.expertise}</div>
-                                    </div>
-                                )}
-                                {item.contactNumber && (
-                                    <div>
-                                        <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>Contact</div>
-                                        <div style={{ fontSize: 14, color: 'var(--text-primary)' }}>{item.contactNumber}</div>
-                                    </div>
-                                )}
+
+                            {/* Expertise / Tags Section */}
+                            <div style={{ padding: '20px 20px 12px' }}>
+                                <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: 8, letterSpacing: '0.05em' }}>Expertise</div>
+                                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                                    {(item.expertise || 'General').split(',').map((tag, idx) => (
+                                        <span key={idx} style={{ 
+                                            padding: '4px 10px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', 
+                                            borderRadius: 6, fontSize: 12, color: 'var(--text-secondary)'
+                                        }}>
+                                            {tag.trim()}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
+
+                            {/* Bio Section */}
                             {item.bio && (
-                                <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginTop: 4 }}>{item.bio}</p>
+                                <div style={{ padding: '0 20px 20px', flex: 1 }}>
+                                    <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                        {item.bio}
+                                    </p>
+                                </div>
                             )}
-                            {item.startups?.length > 0 && (
-                                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>🚀 Currently Mentoring {item.startups.length} startup{item.startups.length !== 1 ? 's' : ''}</div>
-                            )}
-                            <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+
+                            {/* Relationship / Status Bar (Conditional) */}
+                            {user?.role === 'STARTUP' && (() => {
+                                const activeReq = mySentRequests.find(r => r.mentorId === item.id && r.status === 'APPROVED');
+                                const isPending = mySentRequests.some(r => r.mentorId === item.id && r.status === 'PENDING');
+                                
+                                if (activeReq) return (
+                                    <div style={{ margin: '0 20px 12px', padding: '10px 14px', background: 'rgba(16, 185, 129, 0.08)', borderRadius: 10, border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontSize: 13, fontWeight: 700, color: '#10b981' }}>✅ Active Session</span>
+                                            {activeReq.expiryDate && (
+                                                <span style={{ fontSize: 11, color: '#10b981', opacity: 0.8 }}>
+                                                    {(() => {
+                                                        const diff = new Date(activeReq.expiryDate) - new Date();
+                                                        const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                                                        return days > 0 ? `${days}d left` : 'Expires soon';
+                                                    })()}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                                if (isPending) return (
+                                    <div style={{ margin: '0 20px 12px', padding: '10px 14px', background: 'rgba(245, 158, 11, 0.08)', borderRadius: 10, border: '1px solid rgba(245, 158, 11, 0.2)', textAlign: 'center' }}>
+                                        <span style={{ fontSize: 13, fontWeight: 700, color: '#f59e0b' }}>⏳ Request Pending</span>
+                                    </div>
+                                );
+                                return null;
+                            })()}
+
+                            {/* Action Buttons Section */}
+                            <div style={{ padding: 16, borderTop: '1px solid var(--border)', background: 'rgba(255,255,255,0.02)', display: 'flex', gap: 8 }}>
                                 {item.userId && item.userId !== user?.id && (
-                                    <button className="btn btn-primary btn-sm" style={{ width: '100%' }} onClick={() => setChatTarget({ id: item.userId, name: item.userName, email: item.userEmail })}>
-                                        💬 Contact Mentor
+                                    <button className="btn btn-secondary btn-sm" style={{ flex: 1, padding: '10px' }} title="Send Message" onClick={() => setChatTarget({ id: item.userId, name: item.userName, email: item.userEmail })}>
+                                        💬 Message
                                     </button>
                                 )}
-                                {user?.role === 'STARTUP' && (
-                                    (() => {
-                                        const hasRelationship = mySentRequests.some(r => 
-                                            r.mentorId === item.id && (r.status === 'PENDING' || r.status === 'APPROVED')
-                                        );
-                                        
-                                        return hasRelationship ? (
-                                            <div style={{ padding: '8px', textAlign: 'center', background: '#f59e0b11', borderRadius: 8, fontSize: 12, color: '#f59e0b' }}>
-                                                {mySentRequests.find(r => r.mentorId === item.id && r.status === 'APPROVED') ? '✅ Mentorship Active' : '⏳ Request Pending'}
-                                            </div>
-                                        ) : (
-                                            <button className="btn btn-secondary btn-sm" style={{ width: '100%' }} onClick={() => setRequestTarget(item)}>
-                                                🤝 Request Mentorship
-                                            </button>
-                                        );
-                                    })()
+                                <button className="btn btn-secondary btn-sm" style={{ flex: 1, padding: '10px' }} title="View Feedback" onClick={() => setFeedbackTarget({ id: item.userId, userName: item.userName })}>
+                                    ⭐ Reviews
+                                </button>
+                                
+                                {user?.role === 'STARTUP' && !mySentRequests.some(r => r.mentorId === item.id && (r.status === 'PENDING' || r.status === 'APPROVED')) && (
+                                    <button className="btn btn-primary btn-sm" style={{ flex: 2, padding: '10px' }} onClick={() => setRequestTarget(item)}>
+                                        🤝 Request
+                                    </button>
                                 )}
+
                                 {user?.role === 'ADMIN' && item.status === 'PENDING' && (
-                                    <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                                    <div style={{ display: 'flex', gap: 6, flex: 2 }}>
                                         <button className="btn btn-success btn-sm" style={{ flex: 1 }} onClick={() => handleApproveMentor(item.id, 'APPROVED')}>Approve</button>
                                         <button className="btn btn-danger btn-sm" style={{ flex: 1 }} onClick={() => handleApproveMentor(item.id, 'REJECTED')}>Reject</button>
                                     </div>

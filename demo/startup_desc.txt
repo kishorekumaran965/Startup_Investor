@@ -1,9 +1,0 @@
-Field	Type	Null	Key	Default	Extra
-id	bigint	NO	PRI	NULL	auto_increment
-name	varchar(255)	YES		NULL	
-sector	varchar(255)	YES		NULL	
-stage	varchar(255)	YES		NULL	
-founder_id	bigint	YES	MUL	NULL	
-mentor_id	bigint	YES	MUL	NULL	
-description	varchar(255)	YES		NULL	
-funding_goal	double	YES		NULL	

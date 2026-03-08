@@ -14,6 +14,7 @@ const NAV_ITEMS = [
             { to: '/startups', icon: '🚀', label: 'Startups', roles: ['STARTUP', 'ADMIN'] },
             { to: '/my-ideas', icon: '💡', label: 'My Ideas', roles: ['STARTUP'] },
             { to: '/funding-applications', icon: '💰', label: 'Funding Apps', roles: ['STARTUP', 'INVESTOR', 'ADMIN'] },
+            { to: '/document-vault', icon: '🔐', label: 'Document Vault', roles: ['STARTUP', 'INVESTOR', 'ADMIN'] },
         ]
     },
     {
@@ -35,6 +36,7 @@ const NAV_ITEMS = [
     {
         section: 'Communication', items: [
             { to: '/messages', icon: '💬', label: 'Messages' },
+            { to: '/forum', icon: '🌐', label: 'Community Forum' },
             { to: '/notifications', icon: '🔔', label: 'Notifications' },
         ]
     },

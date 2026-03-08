@@ -12,4 +12,7 @@ public interface MentorshipRequestRepositary extends JpaRepository<MentorshipReq
     List<MentorshipRequest> findByStartupFounderId(Long founderId);
 
     List<MentorshipRequest> findByStartupIdAndMentorId(Long startupId, Long mentorId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT m FROM MentorshipRequest m WHERE m.status = 'APPROVED' AND (m.expiryDate IS NULL OR m.expiryDate > CURRENT_TIMESTAMP)")
+    List<MentorshipRequest> findActiveMentorships();
 }

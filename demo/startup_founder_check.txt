@@ -1,3 +1,0 @@
-id	name	founder_id
-1	NexGen AI	1
-2	AI App builder	5

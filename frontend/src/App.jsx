@@ -20,6 +20,8 @@ import NotificationsPage from './pages/NotificationsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import UsersPage from './pages/UsersPage';
 import AdminPanelPage from './pages/AdminPanelPage';
+import DocumentVaultPage from './pages/DocumentVaultPage';
+import ForumPage from './pages/ForumPage';
 
 // Spinner for initial auth check
 function SplashLoader() {
@@ -118,6 +120,8 @@ function AppRoutes() {
                 <Route path="/funding-applications" element={<FundingApplicationsPage />} />
                 <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/analytics" element={<AnalyticsPage />} />
+                <Route path="/document-vault" element={<DocumentVaultPage />} />
+                <Route path="/forum" element={<ForumPage />} />
 
                 {/* Admin-only */}
                 <Route element={<AdminRoute />}>

@@ -1,8 +1,0 @@
-id	name	role
-1	Founder	STARTUP
-2	Investor	INVESTOR
-3	Dr. Mentor	MENTOR
-4	Admin	ADMIN
-5	kishore	STARTUP
-6	Mentor	MENTOR
-7	Manikandan	STARTUP

@@ -1,2 +1,0 @@
-email	password
-founder@test.com	$2a$10$k3Q0taHYDGeCjjnFwnGJsODzLfpiIobfVwhMMSD9jR7Johx9BftJi

@@ -144,3 +144,48 @@ export const investorProfilesApi = {
     getByUserId: (userId) => api.get(`/investor-profiles/user/${userId}`),
     updateByUserId: (userId, data) => api.put(`/investor-profiles/user/${userId}`, data),
 };
+
+// Documents (Vault)
+export const documentsApi = {
+    upload: (formData) => fetch(`${BASE_URL}/documents/upload`, {
+        method: 'POST',
+        headers: {
+            ...(localStorage.getItem('token') ? { Authorization: `Bearer ${localStorage.getItem('token').trim()}` } : {}),
+        },
+        body: formData
+    }).then(handleResponse),
+    getByStartup: (startupId) => api.get(`/documents/startup/${startupId}`),
+    delete: (documentId) => api.del(`/documents/${documentId}`),
+    download: (documentId, userId) => {
+        const token = localStorage.getItem('token');
+        const url = `${BASE_URL}/documents/download/${documentId}?userId=${userId}`;
+        return fetch(url, {
+            headers: {
+                ...(token ? { Authorization: `Bearer ${token.trim()}` } : {}),
+            }
+        }).then(res => {
+            if (!res.ok) throw new Error('Download failed');
+            return res.blob();
+        });
+    },
+    grantPermission: (data) => api.post('/documents/permissions/grant', data),
+    revokePermission: (documentId, investorId) => api.del(`/documents/permissions/revoke?documentId=${documentId}&investorId=${investorId}`),
+    getSharedForInvestor: (investorId) => api.get(`/documents/shared/${investorId}`),
+};
+
+// Feedback & Reputation
+export const feedbackApi = {
+    leave: (data) => api.post('/feedback', data),
+    update: (id, data) => api.put(`/feedback/${id}`, data),
+    getForTarget: (targetId, type) => api.get(`/feedback/target/${targetId}?type=${type}`),
+    delete: (id) => api.del(`/feedback/${id}`),
+};
+
+// Forums
+export const forumApi = {
+    createPost: (data) => api.post('/forum/posts', data),
+    getPosts: (category) => api.get(`/forum/posts${category ? `?category=${encodeURIComponent(category)}` : ''}`),
+    getPost: (id) => api.get(`/forum/posts/${id}`),
+    addComment: (data) => api.post('/forum/comments', data),
+    getComments: (postId) => api.get(`/forum/posts/${postId}/comments`),
+};

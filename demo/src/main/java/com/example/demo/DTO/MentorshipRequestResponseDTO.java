@@ -13,4 +13,5 @@ public class MentorshipRequestResponseDTO {
     private String status;
     private String message;
     private LocalDateTime createdAt;
+    private LocalDateTime expiryDate;
 }

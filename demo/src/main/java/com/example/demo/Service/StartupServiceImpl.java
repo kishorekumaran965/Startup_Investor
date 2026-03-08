@@ -10,6 +10,7 @@ import com.example.demo.Entity.User;
 import com.example.demo.Repositary.StartupRepositary;
 import com.example.demo.Repositary.UserRepositary;
 import com.example.demo.Repositary.MentorRepositary;
+import com.example.demo.Repositary.MentorshipRequestRepositary;
 import com.example.demo.Entity.Mentor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class StartupServiceImpl implements StartupService {
     private final StartupRepositary startupRepository;
     private final UserRepositary userRepository;
     private final MentorRepositary mentorRepository;
+    private final MentorshipRequestRepositary requestRepository;
     private final NotificationService notificationService;
 
     private StartupResponseDTO convertToDTO(Startup startup) {
@@ -79,7 +81,18 @@ public class StartupServiceImpl implements StartupService {
         dto.setInvestments(investmentDTOs);
 
         if (startup.getMentor() != null) {
-            dto.setMentorId(startup.getMentor().getId());
+            // Check if there is an active (non-expired) approved request
+            boolean isActive = requestRepository
+                    .findByStartupIdAndMentorId(startup.getId(), startup.getMentor().getId()).stream()
+                    .anyMatch(r -> "APPROVED".equalsIgnoreCase(r.getStatus()) &&
+                            (r.getExpiryDate() == null || r.getExpiryDate().isAfter(java.time.LocalDateTime.now())));
+
+            if (isActive) {
+                dto.setMentorId(startup.getMentor().getId());
+            } else {
+                // Mentorship expired or revoked
+                dto.setMentorId(null);
+            }
         }
 
         return dto;
