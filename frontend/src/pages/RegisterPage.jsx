@@ -5,10 +5,10 @@ import { useTheme } from '../context/ThemeContext';
 import { authApi } from '../api';
 
 const ROLES = [
-    { value: 'STARTUP', label: '🚀 Startup Founder', desc: 'Build and grow your startup' },
-    { value: 'INVESTOR', label: '💰 Investor', desc: 'Fund promising startups' },
-    { value: 'MENTOR', label: '🎓 Mentor', desc: 'Guide early-stage startups' },
-    { value: 'RESEARCHER', label: '🔬 Researcher', desc: 'Share research & patents' },
+    { value: 'STARTUP', label: 'Startup Founder', desc: 'Build and pitch your idea' },
+    { value: 'INVESTOR', label: 'Investor', desc: 'Back promising startups' },
+    { value: 'MENTOR', label: 'Mentor', desc: 'Help founders grow' },
+    { value: 'RESEARCHER', label: 'Researcher', desc: 'Commercialize your research' },
 ];
 
 export default function RegisterPage() {
@@ -30,7 +30,7 @@ export default function RegisterPage() {
             login(data);
             navigate('/dashboard');
         } catch (err) {
-            setError(err.message || 'Registration failed. Please try again.');
+            setError(err.message || 'Something went wrong — please try again.');
         } finally {
             setLoading(false);
         }
@@ -40,85 +40,142 @@ export default function RegisterPage() {
         <div className="auth-wrapper">
             <button
                 onClick={toggleTheme}
+                title="Toggle theme"
                 style={{
-                    position: 'absolute',
-                    top: 24,
-                    right: 24,
-                    background: 'var(--bg-card)',
-                    border: '1px solid var(--border)',
-                    color: 'var(--text-secondary)',
-                    width: 44,
-                    height: 44,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    fontSize: 20,
-                    zIndex: 100,
-                    boxShadow: 'var(--shadow-md)'
+                    position: 'absolute', top: 20, right: 20,
+                    background: 'var(--navy-3)', border: '1px solid var(--border)',
+                    color: 'var(--text-2)', width: 38, height: 38, borderRadius: '50%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', fontSize: 17, zIndex: 100,
                 }}
             >
-                {theme === 'dark' ? '☀️' : '🌙'}
+                {theme === 'dark'
+                    ? <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>
+                    : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
+                }
             </button>
-            <div className="auth-bg-blob" style={{ width: 400, height: 400, background: 'var(--accent-2)', top: '-50px', right: '-50px' }} />
-            <div className="auth-bg-blob" style={{ width: 350, height: 350, background: 'var(--accent)', bottom: '-80px', left: '-80px' }} />
 
-            <div className="auth-card" style={{ maxWidth: 520 }}>
+            <div className="auth-bg-blob" style={{ width: 380, height: 380, background: 'var(--teal)', top: -60, right: -60 }} />
+            <div className="auth-bg-blob" style={{ width: 320, height: 320, background: 'var(--violet)', bottom: -80, left: -80 }} />
+
+            <div className="auth-card" style={{ maxWidth: 500 }}>
                 <div className="auth-logo">
-                    <div className="logo-icon" style={{ width: 44, height: 44, borderRadius: 10, background: 'linear-gradient(135deg, #6366f1, #a855f7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>⚡</div>
+                    <div style={{
+                        width: 38, height: 38, borderRadius: 8,
+                        background: 'linear-gradient(145deg, #7c6fcd, #3fb9c5)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
+                    }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+                    </div>
                     <div>
-                        <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>VentureHub</div>
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Startup Ecosystem</div>
+                        <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>VentureHub</div>
+                        <div style={{ fontSize: 10, color: 'var(--text-3)', marginTop: 1 }}>Startup Ecosystem</div>
                     </div>
                 </div>
 
                 <h1 className="auth-title">Create your account</h1>
-                <p className="auth-sub">Join the ecosystem — connect with startups, investors, and mentors</p>
+                <p className="auth-sub">Join a growing network of founders, investors, and mentors.</p>
 
-                {error && <div className="alert alert-error">⚠ {error}</div>}
+                {error && <div className="alert alert-error">&#9888; {error}</div>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label className="form-label">Full Name</label>
-                        <input id="reg-name" name="name" type="text" className="form-input" placeholder="John Doe" value={form.name} onChange={handleChange} required />
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label">Email Address</label>
-                        <input id="reg-email" name="email" type="email" className="form-input" placeholder="you@example.com" value={form.email} onChange={handleChange} required />
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label">Password</label>
-                        <input id="reg-password" name="password" type="password" className="form-input" placeholder="Min. 8 characters" value={form.password} onChange={handleChange} required minLength={6} />
+                        <label className="form-label" htmlFor="reg-name">Full Name</label>
+                        <input
+                            id="reg-name"
+                            name="name"
+                            type="text"
+                            className="form-input"
+                            placeholder="Jane Smith"
+                            value={form.name}
+                            onChange={handleChange}
+                            required
+                            autoFocus
+                        />
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Your Role</label>
+                        <label className="form-label" htmlFor="reg-email">Email</label>
+                        <input
+                            id="reg-email"
+                            name="email"
+                            type="email"
+                            className="form-input"
+                            placeholder="your@email.com"
+                            value={form.email}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label" htmlFor="reg-password">Password</label>
+                        <input
+                            id="reg-password"
+                            name="password"
+                            type="password"
+                            className="form-input"
+                            placeholder="At least 8 characters"
+                            value={form.password}
+                            onChange={handleChange}
+                            required
+                            minLength={6}
+                        />
+                    </div>
+
+                    {/* Role picker */}
+                    <div className="form-group">
+                        <label className="form-label">I am a...</label>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                            {ROLES.map((role) => (
-                                <label key={role.value} style={{
-                                    display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px',
-                                    border: `1px solid ${form.role === role.value ? 'var(--accent)' : 'var(--border)'}`,
-                                    borderRadius: 'var(--radius-sm)',
-                                    background: form.role === role.value ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)',
-                                    cursor: 'pointer', transition: 'var(--transition-fast)',
-                                }}>
-                                    <input type="radio" name="role" value={role.value} checked={form.role === role.value} onChange={handleChange} style={{ marginTop: 3 }} />
-                                    <div>
-                                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{role.label}</div>
-                                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{role.desc}</div>
-                                    </div>
-                                </label>
-                            ))}
+                            {ROLES.map((role) => {
+                                const active = form.role === role.value;
+                                return (
+                                    <label
+                                        key={role.value}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'flex-start',
+                                            gap: 9,
+                                            padding: '11px 12px',
+                                            border: `1px solid ${active ? 'var(--violet)' : 'var(--border)'}`,
+                                            borderRadius: 'var(--r-sm)',
+                                            background: active ? 'var(--violet-dim)' : 'var(--navy-4)',
+                                            cursor: 'pointer',
+                                            transition: 'border-color var(--anim), background var(--anim)',
+                                        }}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="role"
+                                            value={role.value}
+                                            checked={active}
+                                            onChange={handleChange}
+                                            style={{ marginTop: 3, accentColor: 'var(--violet)' }}
+                                        />
+                                        <div>
+                                            <div style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--text)' }}>{role.label}</div>
+                                            <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2 }}>{role.desc}</div>
+                                        </div>
+                                    </label>
+                                );
+                            })}
                         </div>
                     </div>
 
-                    <button id="reg-submit" type="submit" className="btn btn-primary btn-full btn-lg" disabled={loading} style={{ marginTop: 8 }}>
-                        {loading ? <><span className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> Creating account...</> : '→ Create Account'}
+                    <button
+                        id="reg-submit"
+                        type="submit"
+                        className="btn btn-primary btn-full btn-lg"
+                        disabled={loading}
+                        style={{ marginTop: 4 }}
+                    >
+                        {loading
+                            ? <><span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} /> Creating account...</>
+                            : 'Create Account'}
                     </button>
                 </form>
 
-                <p style={{ textAlign: 'center', marginTop: 20, fontSize: 14, color: 'var(--text-muted)' }}>
+                <p style={{ textAlign: 'center', marginTop: 20, fontSize: 13.5, color: 'var(--text-3)' }}>
                     Already have an account?{' '}
                     <Link to="/login" className="auth-link">Sign in</Link>
                 </p>

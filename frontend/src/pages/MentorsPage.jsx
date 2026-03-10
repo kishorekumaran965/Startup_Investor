@@ -682,7 +682,15 @@ export default function MentorsPage() {
                             })()}
 
                             {/* Action Buttons Section */}
-                            <div style={{ padding: 16, borderTop: '1px solid var(--border)', background: 'rgba(255,255,255,0.02)', display: 'flex', gap: 8 }}>
+                            <div style={{ padding: 16, borderTop: '1px solid var(--border)', background: 'rgba(255,255,255,0.02)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                <button
+                                    className="btn btn-secondary btn-sm"
+                                    style={{ flex: 1, padding: '10px', minWidth: 90 }}
+                                    title="View full profile"
+                                    onClick={() => navigate(`/users/${item.userId}`)}
+                                >
+                                    👤 Profile
+                                </button>
                                 {item.userId && item.userId !== user?.id && (
                                     <button className="btn btn-secondary btn-sm" style={{ flex: 1, padding: '10px' }} title="Send Message" onClick={() => setChatTarget({ id: item.userId, name: item.userName, email: item.userEmail })}>
                                         💬 Message

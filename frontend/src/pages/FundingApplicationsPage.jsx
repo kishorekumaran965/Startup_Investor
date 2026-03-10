@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { fundingAppApi, startupsApi, usersApi } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 /* ─── Status badge colours ─────────────────────────────────────────────── */
 const STATUS_META = {
@@ -329,6 +330,7 @@ function AppCard({ app, onAction, actionLoading }) {
 /* ─── Main Page ─────────────────────────────────────────────────────────── */
 export default function FundingApplicationsPage() {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const { toasts, addToast, dismiss } = useToast();
 
     const [apps, setApps] = useState([]);
@@ -619,7 +621,7 @@ export default function FundingApplicationsPage() {
                                             <tr key={app.id}>
                                                 <td style={{ color: 'var(--text-muted)', fontFamily: 'monospace', fontSize: 12 }}>#{app.id}</td>
                                                 <td style={{ fontWeight: 600 }}>{app.startupName || `Startup #${app.startupId}`}</td>
-                                                <td style={{ color: 'var(--text-secondary)' }}>{app.investorName || `User #${app.investorId}`}</td>
+                                                <td style={{ color: 'var(--text-secondary)', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3 }} onClick={() => app.investorId && navigate(`/users/${app.investorId}`)} title="View investor profile">{app.investorName || `User #${app.investorId}`}</td>
                                                 <td>
                                                     <span style={{ fontWeight: 700, color: '#10b981' }}>
                                                         ${Number(app.amount || 0).toLocaleString()}

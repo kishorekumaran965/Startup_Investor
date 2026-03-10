@@ -4,13 +4,14 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const TYPE_CONFIG = {
-    SUCCESS: { icon: '✅', color: 'var(--success)', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.2)' },
-    WARNING: { icon: '⚠️', color: 'var(--warning)', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)' },
-    ERROR: { icon: '❌', color: 'var(--danger)', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.2)' },
-    INFO: { icon: 'ℹ️', color: 'var(--accent)', bg: 'rgba(99,102,241,0.08)', border: 'rgba(99,102,241,0.2)' },
-    FUNDING_UPDATE: { icon: '💰', color: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.2)' },
-    MENTOR_ASSIGNED: { icon: '🎓', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)' },
-    SYSTEM: { icon: '⚙️', color: '#6366f1', bg: 'rgba(99,102,241,0.08)', border: 'rgba(99,102,241,0.2)' },
+    SUCCESS: { icon: 'OK', color: 'var(--green)', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.2)' },
+    WARNING: { icon: 'WN', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)' },
+    ERROR: { icon: 'ER', color: '#ef4444', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.2)' },
+    INFO: { icon: 'IN', color: 'var(--violet)', bg: 'rgba(99,102,241,0.08)', border: 'rgba(99,102,241,0.2)' },
+    FUNDING_UPDATE: { icon: 'FD', color: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.2)' },
+    MENTOR_ASSIGNED: { icon: 'MT', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)' },
+    SYSTEM: { icon: 'SY', color: '#6366f1', bg: 'rgba(99,102,241,0.08)', border: 'rgba(99,102,241,0.2)' },
+    NEW_MESSAGE: { icon: 'MS', color: 'var(--teal)', bg: 'rgba(63,185,197,0.08)', border: 'rgba(63,185,197,0.2)' },
 };
 
 export default function NotificationsPage() {
@@ -62,8 +63,8 @@ export default function NotificationsPage() {
         <div className="page-container">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
                 <div>
-                    <h1 className="topbar-title">🔔 Notifications</h1>
-                    <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
+                    <h1 className="topbar-title">Notifications</h1>
+                    <p style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4 }}>
                         Stay updated with platform activity
                         {unreadCount > 0 && <span style={{ color: 'var(--warning)', fontWeight: 600 }}> · {unreadCount} unread</span>}
                     </p>
@@ -86,7 +87,6 @@ export default function NotificationsPage() {
                 <div className="loading-screen"><div className="spinner" /><p>Loading notifications...</p></div>
             ) : filtered.length === 0 ? (
                 <div className="empty-state">
-                    <div className="empty-state-icon">🔔</div>
                     <h3>No notifications</h3>
                     <p>You're all caught up! New notifications will appear here.</p>
                 </div>
@@ -112,7 +112,16 @@ export default function NotificationsPage() {
                                     transition: 'var(--transition-fast)',
                                 }}
                             >
-                                <div style={{ fontSize: 22, flexShrink: 0, marginTop: 2 }}>{cfg.icon}</div>
+                                <div style={{
+                                    width: 36, height: 36,
+                                    borderRadius: 8,
+                                    background: cfg.bg,
+                                    border: `1px solid ${cfg.border}`,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: 11, fontWeight: 800,
+                                    color: cfg.color,
+                                    flexShrink: 0, letterSpacing: '0.04em',
+                                }}>{cfg.icon}</div>
                                 <div style={{ flex: 1 }}>
                                     <div style={{ fontWeight: isUnread ? 700 : 500, fontSize: 14, color: 'var(--text-primary)', marginBottom: 4 }}>
                                         {n.content || n.title || 'Notification'}

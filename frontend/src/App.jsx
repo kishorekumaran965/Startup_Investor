@@ -22,15 +22,27 @@ import UsersPage from './pages/UsersPage';
 import AdminPanelPage from './pages/AdminPanelPage';
 import DocumentVaultPage from './pages/DocumentVaultPage';
 import ForumPage from './pages/ForumPage';
+import ProfilePage from './pages/ProfilePage';
+import ChangePasswordPage from './pages/ChangePasswordPage';
+import UserProfileViewPage from './pages/UserProfileViewPage';
 
 // Spinner for initial auth check
 function SplashLoader() {
     return (
         <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#080c14' }}>
             <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 40, marginBottom: 16 }}>⚡</div>
+                <div style={{
+                    width: 56, height: 56, borderRadius: 12,
+                    background: 'linear-gradient(145deg, #7c6fcd, #3fb9c5)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 20px',
+                }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                    </svg>
+                </div>
                 <div className="spinner" />
-                <p style={{ color: 'var(--text-muted)', marginTop: 16, fontSize: 14 }}>Loading VentureHub...</p>
+                <p style={{ color: 'var(--text-2)', marginTop: 16, fontSize: 14 }}>Loading VentureHub...</p>
             </div>
         </div>
     );
@@ -122,6 +134,9 @@ function AppRoutes() {
                 <Route path="/analytics" element={<AnalyticsPage />} />
                 <Route path="/document-vault" element={<DocumentVaultPage />} />
                 <Route path="/forum" element={<ForumPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/change-password" element={<ChangePasswordPage />} />
+                <Route path="/users/:userId" element={<UserProfileViewPage />} />
 
                 {/* Admin-only */}
                 <Route element={<AdminRoute />}>
