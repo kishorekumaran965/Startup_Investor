@@ -210,23 +210,52 @@ export default function DashboardPage() {
         <div className="page-container">
 
             {/* Welcome banner */}
-            <div className="hero-section" style={{ marginBottom: 22 }}>
-                <div className="hero-greeting">{greeting()}</div>
-                <h1 className="hero-title">
-                    {user?.role === 'ADMIN'
-                        ? <>Admin <span className="gradient-text">Command Center</span></>
-                        : <>Welcome to <span className="gradient-text">VentureHub</span></>}
-                </h1>
-                <p className="hero-subtitle">{ROLE_BLURBS[user?.role]}</p>
+            <div className="hero-section" style={{ 
+                marginBottom: 32, 
+                padding: '40px',
+                borderRadius: 'var(--r-xl)',
+                background: 'var(--navy-2)',
+                border: '1px solid var(--border)',
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: '0 16px 64px rgba(0,0,0,0.5)'
+            }}>
+                <div style={{
+                    position: 'absolute',
+                    top: '-50%',
+                    right: '-10%',
+                    width: '300px',
+                    height: '300px',
+                    borderRadius: '50%',
+                    background: 'var(--violet)',
+                    filter: 'blur(100px)',
+                    opacity: 0.15,
+                    zIndex: 0
+                }}></div>
+                
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                    <div className="hero-greeting" style={{ 
+                        fontSize: '14px', 
+                        fontWeight: 'bold', 
+                        color: 'var(--violet)', 
+                        textTransform: 'uppercase', 
+                        letterSpacing: '2px', 
+                        marginBottom: '12px' 
+                    }}>{greeting()}</div>
+                    <h1 className="hero-title" style={{ fontSize: '36px', fontWeight: '800', marginBottom: '8px' }}>
+                        {user?.role === 'ADMIN'
+                            ? <>Admin <span className="gradient-text">Command Center</span></>
+                            : <>Welcome back, <span className="gradient-text">{user?.name?.split(' ')[0] || 'Founder'}</span></>}
+                    </h1>
+                    <p className="hero-subtitle" style={{ fontSize: '16px', color: 'var(--text-3)', maxWidth: '600px' }}>{ROLE_BLURBS[user?.role] || "Empowering the next generation of global impact."}</p>
 
-                <div style={{ marginTop: 18, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <span className="badge badge-purple">{ROLE_LABELS[user?.role] || user?.role}</span>
-                    <span style={{ fontSize: 12.5, color: 'var(--text-3)' }}>{user?.email}</span>
-                    {stats.notifications > 0 && (
-                        <a href="/notifications" className="badge badge-amber" style={{ textDecoration: 'none' }}>
-                            {stats.notifications} unread
-                        </a>
-                    )}
+                    <div style={{ marginTop: 24, display: 'flex', gap: 12, alignItems: 'center' }}>
+                        <button className="btn btn-primary" onClick={() => navigate('/notifications')}>
+                            {stats.notifications} New Notifications
+                        </button>
+                        <div style={{ height: '20px', width: '1px', background: 'var(--border)' }}></div>
+                        <span style={{ fontSize: '13px', color: 'var(--text-3)' }}>{user?.email}</span>
+                    </div>
                 </div>
             </div>
 
@@ -304,18 +333,47 @@ export default function DashboardPage() {
                         </div>
                     </div>
 
-                    {/* Quick links */}
-                    <div className="card" style={{ marginTop: 18 }}>
-                        <div className="section-header">
-                            <div>
-                                <div className="section-title">Quick actions</div>
-                                <div className="section-subtitle">Tailored for your role</div>
-                            </div>
-                        </div>
-                        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                            {links.map(link => (
-                                <a key={link.href} href={link.href} className="btn btn-ghost">
-                                    {link.label}
+                    {/* Quick links as Bento Tiles */}
+                    <div style={{ marginTop: 24 }}>
+                        <div className="section-title" style={{ marginBottom: 16 }}>Recommended actions</div>
+                        <div style={{ 
+                            display: 'grid', 
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                            gap: 16 
+                        }}>
+                            {links.map((link, idx) => (
+                                <a 
+                                    key={link.href} 
+                                    href={link.href} 
+                                    className="card"
+                                    style={{ 
+                                        padding: '24px', 
+                                        textDecoration: 'none', 
+                                        transition: 'var(--anim)',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'flex-start',
+                                        gap: '12px'
+                                    }}
+                                >
+                                    <div style={{ 
+                                        width: '40px', 
+                                        height: '40px', 
+                                        borderRadius: '12px', 
+                                        background: 'var(--violet-dim)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: 'var(--violet)'
+                                    }}>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                                    </div>
+                                    <div style={{ fontWeight: '700', fontSize: '15px', color: 'var(--text)' }}>
+                                        {link.label}
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-3)' }}>
+                                        Quick access to your {link.label.toLowerCase()} board.
+                                    </div>
                                 </a>
                             ))}
                         </div>
@@ -379,11 +437,25 @@ export default function DashboardPage() {
 // small helper component so stat cards aren't 3-line JSX inline
 function StatCard({ icon, value, label, color }) {
     return (
-        <div className="stat-card">
-            <div className="stat-icon" style={{ background: color }}>{icon}</div>
+        <div className="card" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '20px', padding: '24px' }}>
+            <div style={{ 
+                width: '56px', 
+                height: '56px', 
+                borderRadius: '16px', 
+                background: color,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '18px',
+                fontWeight: '800',
+                color: 'white',
+                textShadow: '0 0 10px rgba(255,255,255,0.3)'
+            }}>
+                {icon}
+            </div>
             <div>
-                <div className="stat-value">{value}</div>
-                <div className="stat-label">{label}</div>
+                <div style={{ fontSize: '28px', fontWeight: '800', color: 'var(--text)', lineHeight: 1.1 }}>{value}</div>
+                <div style={{ fontSize: '13px', color: 'var(--text-3)', fontWeight: '500', marginTop: '4px' }}>{label}</div>
             </div>
         </div>
     );

@@ -123,15 +123,51 @@ export default function AnalyticsPage() {
 
     return (
         <div className="page-container">
-            <div style={{ marginBottom: 28 }}>
-                <h1 className="topbar-title">📊 Personalized Analytics</h1>
-                <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
-                    {user?.role === 'ADMIN' ? 'Full ecosystem health and performance tracking.' : 
-                     user?.role === 'STARTUP' ? 'Insights into your venture growth and funding pipeline.' :
-                     user?.role === 'INVESTOR' ? 'Portfolio analysis and market opportunity breakdown.' :
-                     user?.role === 'RESEARCHER' ? 'Intellectual property and research impact analytics.' :
-                     'Deep dive into platform data and metrics.'}
-                </p>
+            {/* High-Fidelity Hero */}
+            <div className="hero-section" style={{ 
+                marginBottom: 32, 
+                padding: '40px',
+                borderRadius: 'var(--r-lg)',
+                background: 'var(--navy-2)',
+                border: '1px solid var(--border)',
+                position: 'relative',
+                overflow: 'hidden'
+            }}>
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--violet)', letterSpacing: '2px', marginBottom: '8px' }}>CORE METRICS</div>
+                    <h1 className="hero-title" style={{ fontSize: '32px', marginBottom: '8px' }}>Ecosystem Intelligence</h1>
+                    <p className="hero-subtitle" style={{ fontSize: '15px', color: 'var(--text-3)', maxWidth: '600px', lineHeight: '1.6' }}>
+                        {user?.role === 'ADMIN' ? 'Full platform monitoring and cross-sector performance analytics.' : 
+                         user?.role === 'STARTUP' ? 'Growth trajectory, investor interest, and capital efficiency metrics.' :
+                         user?.role === 'INVESTOR' ? 'Market opportunity mapping and portfolio performance monitoring.' :
+                         user?.role === 'RESEARCHER' ? 'IP development tracking and high-impact research analytics.' :
+                         'Deep dive into platform data and metrics.'}
+                    </p>
+                </div>
+
+                {/* Decorative Elements */}
+                <div style={{ 
+                    position: 'absolute', 
+                    top: '-20%', 
+                    right: '-10%', 
+                    width: '300px', 
+                    height: '300px', 
+                    background: 'var(--violet)', 
+                    filter: 'blur(100px)', 
+                    opacity: 0.1,
+                    borderRadius: '50%'
+                }} />
+                <div style={{ 
+                    position: 'absolute', 
+                    bottom: '-10%', 
+                    right: '10%', 
+                    width: '200px', 
+                    height: '200px', 
+                    background: 'var(--teal)', 
+                    filter: 'blur(80px)', 
+                    opacity: 0.08,
+                    borderRadius: '50%'
+                }} />
             </div>
 
             {loading ? (
@@ -139,39 +175,50 @@ export default function AnalyticsPage() {
             ) : (
                 <>
                     {/* Role-Tailored Summary Cards */}
-                    <div className="stats-grid">
+                    {/* Premium Stats Grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginBottom: 32 }}>
                         {user?.role === 'ADMIN' ? (
                             <>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(99,102,241,0.15)' }}>🚀</div><div><div className="stat-value">{startups.length}</div><div className="stat-label">Startups</div></div></div>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(239,68,68,0.15)' }}>👥</div><div><div className="stat-value">{users.length}</div><div className="stat-label">Total Users</div></div></div>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(16,185,129,0.15)' }}>💰</div><div><div className="stat-value">${(totalFunding/1000).toFixed(0)}K</div><div className="stat-label">Global Funding</div></div></div>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(245,158,11,0.15)' }}>📋</div><div><div className="stat-value">{applications.length}</div><div className="stat-label">App Volume</div></div></div>
-                            </>
-                        ) : user?.role === 'STARTUP' ? (
-                            <>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(99,102,241,0.15)' }}>💡</div><div><div className="stat-value">{startups.length}</div><div className="stat-label">My Startups</div></div></div>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(16,185,129,0.15)' }}>💰</div><div><div className="stat-value">${(totalFunding/1000).toFixed(0)}K+</div><div className="stat-label">Funding Sought</div></div></div>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(16,185,129,0.15)' }}>✅</div><div><div className="stat-value">${(approvedFunding/1000).toFixed(0)}K</div><div className="stat-label">Approved</div></div></div>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(245,158,11,0.15)' }}>📋</div><div><div className="stat-value">{applications.length}</div><div className="stat-label">Applications</div></div></div>
-                            </>
-                        ) : user?.role === 'INVESTOR' ? (
-                            <>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(99,102,241,0.15)' }}>👜</div><div><div className="stat-value">{applications.length}</div><div className="stat-label">Portfolio Cos</div></div></div>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(16,185,129,0.15)' }}>💰</div><div><div className="stat-value">${(approvedFunding/1000).toFixed(0)}K</div><div className="stat-label">Total Invested</div></div></div>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(245,158,11,0.15)' }}>🔍</div><div><div className="stat-value">{startups.length}</div><div className="stat-label">Market Reach</div></div></div>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(6,182,212,0.15)' }}>🎓</div><div><div className="stat-value">{mentors.length}</div><div className="stat-label">Experts</div></div></div>
-                            </>
-                        ) : user?.role === 'RESEARCHER' ? (
-                            <>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(6,182,212,0.15)' }}>🔬</div><div><div className="stat-value">{researchProjects.length}</div><div className="stat-label">Research Repos</div></div></div>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(139,92,246,0.15)' }}>📜</div><div><div className="stat-value">{patentCount}</div><div className="stat-label">IP Portfolio</div></div></div>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(99,102,241,0.15)' }}>💡</div><div><div className="stat-value">{startups.length}</div><div className="stat-label">Venture Scope</div></div></div>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(16,185,129,0.15)' }}>💰</div><div><div className="stat-value">${(totalFunding/1000).toFixed(0)}K</div><div className="stat-label">Grants Secured</div></div></div>
+                                <div className="card" style={{ padding: '24px' }}>
+                                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-3)', marginBottom: '8px' }}>TOTAL STARTUPS</div>
+                                    <div style={{ fontSize: '32px', fontWeight: '900', color: 'var(--text)' }}>{startups.length}</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--teal)', marginTop: '4px' }}>Active Ecosystem</div>
+                                </div>
+                                <div className="card" style={{ padding: '24px' }}>
+                                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-3)', marginBottom: '8px' }}>PLATFORM USERS</div>
+                                    <div style={{ fontSize: '32px', fontWeight: '900', color: 'var(--text)' }}>{users.length}</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--violet)', marginTop: '4px' }}>Global Network</div>
+                                </div>
+                                <div className="card" style={{ padding: '24px' }}>
+                                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-3)', marginBottom: '8px' }}>CAPITAL VOLUME</div>
+                                    <div style={{ fontSize: '32px', fontWeight: '900', color: 'var(--text)' }}>${(totalFunding/1000).toFixed(0)}K</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--pink)', marginTop: '4px' }}>Total Funding Goal</div>
+                                </div>
+                                <div className="card" style={{ padding: '24px' }}>
+                                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-3)', marginBottom: '8px' }}>PIPELINE LOAD</div>
+                                    <div style={{ fontSize: '32px', fontWeight: '900', color: 'var(--text)' }}>{applications.length}</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--warning)', marginTop: '4px' }}>Active Requests</div>
+                                </div>
                             </>
                         ) : (
+                            /* Simplified for other roles but still high-fidelity */
                             <>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(99,102,241,0.15)' }}>🚀</div><div><div className="stat-value">{startups.length}</div><div className="stat-label">Entities</div></div></div>
-                                <div className="stat-card"><div className="stat-icon" style={{ background: 'rgba(6,182,212,0.15)' }}>✅</div><div><div className="stat-value">Live</div><div className="stat-label">Ecosystem</div></div></div>
+                                <div className="card" style={{ padding: '24px' }}>
+                                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-3)', marginBottom: '8px' }}>ENTITIES</div>
+                                    <div style={{ fontSize: '32px', fontWeight: '900', color: 'var(--text)' }}>{startups.length}</div>
+                                </div>
+                                <div className="card" style={{ padding: '24px' }}>
+                                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-3)', marginBottom: '8px' }}>PIPELINE</div>
+                                    <div style={{ fontSize: '32px', fontWeight: '900', color: 'var(--text)' }}>{applications.length}</div>
+                                </div>
+                                <div className="card" style={{ padding: '24px' }}>
+                                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-3)', marginBottom: '8px' }}>SECURED</div>
+                                    <div style={{ fontSize: '32px', fontWeight: '900', color: 'var(--text)' }}>${(approvedFunding/1000).toFixed(0)}K</div>
+                                </div>
+                                <div className="card" style={{ padding: '24px' }}>
+                                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-3)', marginBottom: '8px' }}>NETWORK</div>
+                                    <div style={{ fontSize: '32px', fontWeight: '900', color: 'var(--text)' }}>{mentors.length}</div>
+                                </div>
                             </>
                         )}
                     </div>

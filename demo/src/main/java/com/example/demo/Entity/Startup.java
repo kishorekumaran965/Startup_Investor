@@ -48,4 +48,13 @@ public class Startup {
     @JoinColumn(name = "mentor_id")
     private Mentor mentor;
 
+    @Column(nullable = false, columnDefinition = "bigint default 10000000")
+    private Long totalAuthorizedShares = 10000000L;
+
+    @Column(nullable = false, columnDefinition = "double default 100.0")
+    private Double availableEquity = 100.0;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "startup", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CapTableEntry> capTable = new ArrayList<>();
 }

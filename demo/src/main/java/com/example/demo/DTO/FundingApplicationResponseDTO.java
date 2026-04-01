@@ -17,6 +17,7 @@ public class FundingApplicationResponseDTO {
     private Long investorId;
     private String investorName;
     private Double amount;
+    private Double equityOffered;
     private String message;
     private String status; // PENDING, APPROVED, REJECTED
     private LocalDate applicationDate;

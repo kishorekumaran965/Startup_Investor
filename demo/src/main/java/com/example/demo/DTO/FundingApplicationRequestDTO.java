@@ -13,5 +13,6 @@ public class FundingApplicationRequestDTO {
     private Long startupId;
     private Long investorId;
     private Double amount;
+    private Double equityOffered;
     private String message;
 }

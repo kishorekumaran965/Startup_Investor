@@ -26,6 +26,7 @@ public class StartupServiceImpl implements StartupService {
     private final MentorRepositary mentorRepository;
     private final MentorshipRequestRepositary requestRepository;
     private final NotificationService notificationService;
+    private final com.example.demo.Repositary.CapTableRepositary capTableRepository;
 
     private StartupResponseDTO convertToDTO(Startup startup) {
         StartupResponseDTO dto = new StartupResponseDTO();
@@ -118,6 +119,17 @@ public class StartupServiceImpl implements StartupService {
         startup.setFounder(user);
 
         Startup saved = startupRepository.save(startup);
+
+        // Initialize Cap Table with Founder
+        com.example.demo.Entity.CapTableEntry founderEntry = new com.example.demo.Entity.CapTableEntry();
+        founderEntry.setStartup(saved);
+        founderEntry.setOwnerName(user.getName());
+        founderEntry.setOwnerUser(user);
+        founderEntry.setOwnerType("FOUNDER");
+        founderEntry.setShares(saved.getTotalAuthorizedShares());
+        founderEntry.setOwnershipPercentage(100.0);
+        capTableRepository.save(founderEntry);
+
         return convertToDTO(saved);
     }
 

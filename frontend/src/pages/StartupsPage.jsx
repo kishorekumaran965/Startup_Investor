@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { startupsApi, fundingAppApi, usersApi } from '../api';
 import { useAuth } from '../context/AuthContext';
+import CapTableModal from '../components/CapTableModal';
 
 const STAGES = ['IDEA', 'MVP', 'GROWTH', 'SCALING'];
 const INDUSTRIES = ['Technology', 'Healthcare', 'Finance', 'Education', 'E-commerce', 'Sustainability', 'AI/ML', 'Other'];
@@ -75,6 +76,7 @@ export default function StartupsPage() {
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [showCapTable, setShowCapTable] = useState(false);
     const [search, setSearch] = useState('');
     const [filterIndustry, setFilterIndustry] = useState('');
 
@@ -127,33 +129,67 @@ export default function StartupsPage() {
                 />
             )}
 
-            <div className="topbar" style={{ position: 'static', background: 'transparent', border: 'none', padding: '0 0 24px 0' }}>
+            {showCapTable && selected && (
+                <CapTableModal
+                    startup={selected}
+                    onClose={() => { setShowCapTable(false); setSelected(null); }}
+                />
+            )}
+
+            <div className="hero-section" style={{ 
+                marginBottom: 32, 
+                padding: '32px',
+                borderRadius: 'var(--r-lg)',
+                background: 'var(--navy-2)',
+                border: '1px solid var(--border)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+            }}>
                 <div>
-                    <h1 className="topbar-title">🚀 Startups</h1>
-                    <p className="topbar-sub">Browse and manage all startups in the ecosystem</p>
+                    <h1 className="hero-title" style={{ fontSize: '28px', marginBottom: '4px' }}>🚀 Startups Ecosystem</h1>
+                    <p className="hero-subtitle" style={{ fontSize: '14px', color: 'var(--text-3)' }}>Discover, track, and manage high-growth ventures.</p>
                 </div>
                 {user?.role !== 'ADMIN' && (
-                    <button id="new-startup-btn" className="btn btn-primary" onClick={() => { setSelected(null); setShowModal(true); }}>
-                        + New Startup
+                    <button id="new-startup-btn" className="btn btn-primary" style={{ padding: '12px 24px' }} onClick={() => { setSelected(null); setShowModal(true); }}>
+                        Launch New Startup
                     </button>
                 )}
             </div>
 
-            {/* Filters */}
-            <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
-                <input
-                    className="form-input"
-                    style={{ maxWidth: 280 }}
-                    placeholder="🔍 Search startups..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-                <select className="form-select" style={{ maxWidth: 180 }} value={filterIndustry} onChange={(e) => setFilterIndustry(e.target.value)}>
+            {/* Filters bar */}
+            <div style={{ 
+                display: 'flex', 
+                gap: 12, 
+                marginBottom: 32, 
+                padding: '12px',
+                background: 'rgba(255,255,255,0.02)',
+                borderRadius: '12px',
+                border: '1px solid var(--border)',
+                alignItems: 'center'
+            }}>
+                <div style={{ position: 'relative', flex: 1, maxWidth: 320 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }}><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                    <input
+                        className="form-input"
+                        style={{ paddingLeft: 40, border: 'none', background: 'transparent' }}
+                        placeholder="Search startups..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
+                <div style={{ width: '1px', height: '24px', background: 'var(--border)' }}></div>
+                <select 
+                    className="form-select" 
+                    style={{ maxWidth: 180, border: 'none', background: 'transparent' }} 
+                    value={filterIndustry} 
+                    onChange={(e) => setFilterIndustry(e.target.value)}
+                >
                     <option value="">All Industries</option>
                     {INDUSTRIES.map(i => <option key={i} value={i}>{i}</option>)}
                 </select>
-                <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-muted)', fontSize: 13 }}>
-                    {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+                <div style={{ marginLeft: 'auto', paddingRight: 12, color: 'var(--text-3)', fontSize: '12px', fontWeight: 'bold' }}>
+                    {filtered.length} VENTURES FOUND
                 </div>
             </div>
 
@@ -166,48 +202,63 @@ export default function StartupsPage() {
                     <p>Try adjusting your filters or create a new startup</p>
                 </div>
             ) : (
-                <div className="grid-auto">
+                <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', 
+                    gap: 24 
+                }}>
                     {filtered.map((s) => (
-                        <div key={s.id} className="card" style={{ display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
-                            <div style={{ padding: '24px 20px 16px', flex: 1 }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                                    <div style={{ display: 'flex', gap: 6 }}>
-                                        <span className={`badge ${stageColors[s.stage] || 'badge-purple'}`} style={{ fontSize: 10 }}>{s.stage || 'IDEA'}</span>
-                                        {s.industry && <span className="badge badge-cyan" style={{ fontSize: 10 }}>{s.industry}</span>}
-                                    </div>
-                                    <div style={{ fontSize: 24 }}>🚀</div>
+                        <div key={s.id} className="card" style={{ display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden', position: 'relative' }}>
+                            <div style={{ padding: '32px 28px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                                    <div style={{ 
+                                        width: '48px', 
+                                        height: '48px', 
+                                        borderRadius: '12px', 
+                                        background: 'var(--violet-dim)', 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: 'center', 
+                                        fontSize: '24px' 
+                                    }}>🚀</div>
+                                    <span className={`badge ${stageColors[s.stage] || 'badge-purple'}`} style={{ fontSize: '10px', padding: '4px 10px' }}>{s.stage || 'IDEA'}</span>
                                 </div>
-                                <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>{s.name}</h3>
-                                <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                
+                                <h3 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '8px', color: 'var(--text)' }}>{s.name}</h3>
+                                <div style={{ marginBottom: 16 }}>
+                                    <span style={{ fontSize: '12px', color: 'var(--violet)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>{s.industry}</span>
+                                </div>
+                                <p style={{ fontSize: '14px', color: 'var(--text-3)', lineHeight: '1.6', marginBottom: 24, minHeight: '66px' }}>
                                     {s.description}
                                 </p>
                                 
                                 {s.fundingGoal && (
-                                    <div style={{ marginTop: 16, padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: 10 }}>
-                                        <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>Funding Goal</div>
-                                        <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--success)' }}>
-                                            ${Number(s.fundingGoal).toLocaleString()}
-                                        </div>
+                                    <div style={{ 
+                                        padding: '16px', 
+                                        background: 'rgba(255,255,255,0.03)', 
+                                        borderRadius: '12px', 
+                                        border: '1px solid var(--border)',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                    }}>
+                                        <span style={{ fontSize: '12px', color: 'var(--text-3)', fontWeight: 'bold' }}>FUNDING GOAL</span>
+                                        <span style={{ fontSize: '18px', fontWeight: '900', color: 'var(--teal)' }}>${Number(s.fundingGoal).toLocaleString()}</span>
                                     </div>
                                 )}
                             </div>
 
-                            <div style={{ padding: '12px 20px', background: 'rgba(255,255,255,0.02)', borderTop: '1px solid var(--border)', display: 'flex', gap: 8 }}>
+                            <div style={{ padding: '20px 28px', background: 'rgba(255,255,255,0.02)', borderTop: '1px solid var(--border)', display: 'flex', gap: 12 }}>
+                                <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => { setSelected(s); setShowCapTable(true); }}>Cap Table</button>
                                 {user?.role !== 'ADMIN' && s.founder?.id === user?.id && (
                                     <button
-                                        className="btn btn-secondary btn-sm"
+                                        className="btn btn-ghost"
                                         onClick={() => { setSelected(s); setShowModal(true); }}
-                                        style={{ flex: 1 }}
-                                    >
-                                        ✏️ Edit Startup
-                                    </button>
+                                    >Edit</button>
                                 )}
                                 {user?.role === 'ADMIN' && (
-                                    <button className="btn btn-danger btn-sm" style={{ flexShrink: 0 }} onClick={() => handleDelete(s.id)}>🗑 Delete</button>
+                                    <button className="btn btn-danger" onClick={() => handleDelete(s.id)}>Delete</button>
                                 )}
-                                <button className="btn btn-primary btn-sm" style={{ flex: 1 }}>
-                                    View Details
-                                </button>
                             </div>
                         </div>
                     ))}

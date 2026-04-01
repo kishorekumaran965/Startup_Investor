@@ -11,6 +11,7 @@ public class DocumentResponseDTO {
     private String fileName;
     private String fileType;
     private String description;
+    private String category;
     private String uploadDate;
     private Long startupId;
     private String startupName;

@@ -396,187 +396,147 @@ export default function ProfilePage() {
     };
 
     return (
-        <div className="page-container" style={{ maxWidth: 680, margin: '0 auto' }}>
-            {toast && <Toast message={toast.message} type={toast.type} onDismiss={() => setToast(null)} />}
+        <div className="page-container">
+            {/* High-Fidelity Profile Hero */}
+            <div className="hero-section" style={{ 
+                marginBottom: 32, 
+                padding: '48px',
+                borderRadius: 'var(--r-lg)',
+                background: 'var(--navy-2)',
+                border: '1px solid var(--border)',
+                position: 'relative',
+                overflow: 'hidden',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '32px'
+            }}>
+                <div style={{ position: 'relative', zIndex: 2 }}>
+                    <div style={{
+                        width: 120, height: 120, borderRadius: '24px',
+                        background: avatarBg,
+                        border: `4px solid ${roleColor}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 42, fontWeight: 900, color: '#fff',
+                        boxShadow: `0 0 40px ${roleColor}33`,
+                        overflow: 'hidden',
+                        cursor: 'pointer'
+                    }} onClick={() => fileRef.current?.click()}>
+                        {!avatarSrc && getInitials(user?.name, user?.email)}
+                    </div>
+                </div>
 
-            {/* Page title */}
-            <div style={{ marginBottom: 28 }}>
-                <h1 style={{ fontSize: 21, fontWeight: 700, color: 'var(--text)', margin: 0 }}>Profile Settings</h1>
-                <p style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4 }}>
-                    Update your display name, photo, bio, and role-specific profile.
-                </p>
+                <div style={{ position: 'relative', zIndex: 2 }}>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: roleColor, letterSpacing: '2px', marginBottom: '8px' }}>{user?.role.toUpperCase()} ACCOUNT</div>
+                    <h1 className="hero-title" style={{ fontSize: '32px', marginBottom: '8px' }}>{user?.name || 'Venture Member'}</h1>
+                    <p className="hero-subtitle" style={{ fontSize: '15px', color: 'var(--text-3)', maxWidth: '600px' }}>{user?.email}</p>
+                    
+                    <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+                        <button className="btn btn-primary btn-sm" onClick={() => fileRef.current?.click()}>Update Photo</button>
+                        <button className="btn btn-ghost btn-sm" onClick={() => navigate('/change-password')}>Secure ID</button>
+                    </div>
+                </div>
+
+                {/* Decorative mesh */}
+                <div style={{ 
+                    position: 'absolute', 
+                    top: '-20%', 
+                    right: '-10%', 
+                    width: '400px', 
+                    height: '400px', 
+                    background: roleColor, 
+                    filter: 'blur(120px)', 
+                    opacity: 0.1,
+                    borderRadius: '50%'
+                }} />
             </div>
 
-            {/* Avatar hero */}
-            <div className="card" style={{ marginBottom: 18, padding: '26px 28px' }}>
-                <div style={{ display: 'flex', gap: 22, alignItems: 'center', flexWrap: 'wrap' }}>
-                    {/* Avatar + camera button */}
-                    <div style={{ position: 'relative', flexShrink: 0 }}>
-                        <div style={{
-                            width: 86, height: 86, borderRadius: '50%',
-                            background: avatarBg,
-                            border: `3px solid ${roleColor}55`,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 26, fontWeight: 700, color: '#fff',
-                            boxShadow: `0 0 0 4px ${roleColor}1a`,
-                            overflow: 'hidden',
-                        }}>
-                            {!avatarSrc && getInitials(user?.name, user?.email)}
-                        </div>
-                        <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFilePick} />
-                        <button
-                            type="button"
-                            onClick={() => fileRef.current?.click()}
-                            style={{
-                                position: 'absolute', bottom: 0, right: 0,
-                                width: 28, height: 28, borderRadius: '50%',
-                                background: 'var(--violet)', border: '2px solid var(--navy)',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                cursor: 'pointer', color: '#fff',
-                            }}
-                            title="Upload photo"
-                        >
-                            <CameraIcon />
-                        </button>
-                    </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 24 }}>
 
-                    {/* User meta */}
-                    <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--text)', marginBottom: 3 }}>
-                            {user?.name || 'Your Name'}
-                        </div>
-                        <div style={{ fontSize: 12.5, color: 'var(--text-2)', marginBottom: 8 }}>{user?.email}</div>
-                        <span style={{
-                            display: 'inline-block', padding: '3px 10px', borderRadius: 99,
-                            fontSize: 11, fontWeight: 700,
-                            background: roleColor + '22', color: roleColor,
-                            border: `1px solid ${roleColor}44`, letterSpacing: '0.04em',
-                        }}>
-                            {user?.role}
-                        </span>
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={() => fileRef.current?.click()}
-                        style={{
-                            display: 'flex', alignItems: 'center', gap: 7,
-                            padding: '8px 14px', borderRadius: 8,
-                            background: 'var(--violet-dim)', color: 'var(--violet)',
-                            border: '1px solid rgba(124,111,205,0.3)',
-                            cursor: 'pointer', fontSize: 13, fontWeight: 600,
-                            transition: 'background 0.15s',
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(124,111,205,0.2)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'var(--violet-dim)'}
-                    >
-                        <CameraIcon /> Change photo
-                    </button>
-                </div>
+                {/* Photo Update section is now in Hero, hiding this card */}
                 {photoData && (
                     <div style={{
-                        marginTop: 12, padding: '8px 12px', borderRadius: 8,
+                        gridColumn: 'span 12',
+                        padding: '16px 24px', borderRadius: 12,
                         background: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.2)',
-                        fontSize: 12, color: '#10b981', display: 'flex', alignItems: 'center', gap: 6,
+                        fontSize: 14, color: '#10b981', display: 'flex', alignItems: 'center', gap: 10,
+                        marginBottom: 12
                     }}>
-                        <CheckIcon /> New photo selected — click <strong>Save changes</strong> to apply.
+                        <CheckIcon /> New identity image synchronized. <strong>Commit changes</strong> below to persist.
                     </div>
                 )}
-            </div>
+                <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFilePick} />
 
-            {/* Personal info form */}
-            <div className="card" style={{ marginBottom: 18, padding: '22px 28px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
-                    <div style={{
-                        width: 30, height: 30, borderRadius: 8,
-                        background: 'var(--violet-dim)', color: 'var(--violet)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                        <UserIcon />
-                    </div>
-                    <div>
-                        <div style={{ fontWeight: 700, fontSize: 13.5, color: 'var(--text)' }}>Personal Info</div>
-                        <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Name and bio visible to others on the platform</div>
-                    </div>
-                </div>
-
-                <form onSubmit={handleSave}>
-                    <div className="form-group" style={{ marginBottom: 14 }}>
-                        <label className="form-label" htmlFor="pf-name">Display Name</label>
-                        <input
-                            id="pf-name"
-                            className="form-input"
-                            value={name}
-                            onChange={e => setName(e.target.value)}
-                            placeholder="Your name"
-                            required
-                        />
+                {/* Personal info form - Left Column */}
+                <div className="card" style={{ gridColumn: 'span 5', padding: '32px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+                        <div style={{
+                            width: 32, height: 32, borderRadius: 10,
+                            background: 'var(--violet-dim)', color: 'var(--violet)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                            <UserIcon />
+                        </div>
+                        <div style={{ fontWeight: 800, fontSize: '15px' }}>Identity Core</div>
                     </div>
 
-                    <div className="form-group" style={{ marginBottom: 20 }}>
-                        <label className="form-label" htmlFor="pf-bio">Bio</label>
-                        <textarea
-                            id="pf-bio"
-                            className="form-textarea"
-                            rows={3}
-                            value={bio}
-                            onChange={e => setBio(e.target.value)}
-                            placeholder="Tell the community about yourself…"
-                            style={{ resize: 'vertical', minHeight: 80 }}
-                        />
-                    </div>
+                    <form onSubmit={handleSave}>
+                        <div className="form-group" style={{ marginBottom: 20 }}>
+                            <label className="form-label">GLOBAL ALIAS</label>
+                            <input
+                                className="form-input"
+                                value={name}
+                                onChange={e => setName(e.target.value)}
+                                placeholder="Your identity"
+                                required
+                            />
+                        </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <div className="form-group" style={{ marginBottom: 32 }}>
+                            <label className="form-label">SYNOPSIS (BIO)</label>
+                            <textarea
+                                className="form-textarea"
+                                rows={4}
+                                value={bio}
+                                onChange={e => setBio(e.target.value)}
+                                placeholder="Share your trajectory..."
+                                style={{ resize: 'none' }}
+                            />
+                        </div>
+
                         <button
                             type="submit"
                             className="btn btn-primary"
                             disabled={loading}
-                            style={{ display: 'flex', alignItems: 'center', gap: 7 }}
+                            style={{ width: '100%', padding: '14px' }}
                         >
-                            <SaveIcon />
-                            {loading ? 'Saving…' : 'Save changes'}
+                            {loading ? 'Synthesizing...' : 'Commit Changes'}
                         </button>
-                    </div>
-                </form>
-            </div>
+                    </form>
+                </div>
 
-            {/* Role-specific profile sections */}
-            {user?.role === 'INVESTOR' && user?.id && (
-                <InvestorProfileSection userId={user.id} roleColor={ROLE_COLORS.INVESTOR} />
-            )}
-            {user?.role === 'MENTOR' && user?.id && (
-                <MentorProfileSection userId={user.id} />
-            )}
-
-            {/* Change password link-card */}
-            <div
-                className="card"
-                style={{
-                    padding: '20px 28px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    cursor: 'pointer',
-                    transition: 'border-color 0.15s',
-                }}
-                onClick={() => navigate('/change-password')}
-                onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(239,68,68,0.4)'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = ''}
-            >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{
-                        width: 30, height: 30, borderRadius: 8,
-                        background: 'rgba(239,68,68,0.1)', color: '#ef4444',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                        <LockIcon />
-                    </div>
-                    <div>
-                        <div style={{ fontWeight: 700, fontSize: 13.5, color: 'var(--text)' }}>Change Password</div>
-                        <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Update your account password</div>
+                {/* Right Area for Role Profiles */}
+                <div style={{ gridColumn: 'span 7', display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    {user?.role === 'INVESTOR' && user?.id && (
+                        <InvestorProfileSection userId={user.id} roleColor={ROLE_COLORS.INVESTOR} />
+                    )}
+                    {user?.role === 'MENTOR' && user?.id && (
+                        <MentorProfileSection userId={user.id} />
+                    )}
+                    
+                    {/* Account Security Box */}
+                    <div className="card" style={{ padding: '32px' }}>
+                       <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 24 }}>
+                           <div style={{ width: 32, height: 32, background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                               <LockIcon />
+                           </div>
+                           <div style={{ fontWeight: 800, fontSize: '15px' }}>Security Protocol</div>
+                       </div>
+                       <p style={{ fontSize: '13px', color: 'var(--text-3)', marginBottom: 24 }}>Update your secure access credentials and authentication methods.</p>
+                       <button className="btn btn-secondary" style={{ width: '100%' }} onClick={() => navigate('/change-password')}>
+                           Change Access Key
+                       </button>
                     </div>
                 </div>
-                <span style={{ color: 'var(--text-3)', display: 'flex', alignItems: 'center' }}>
-                    <ArrowRightIcon />
-                </span>
             </div>
         </div>
     );

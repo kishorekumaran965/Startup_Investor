@@ -8,7 +8,8 @@ import java.util.List;
 import org.springframework.core.io.Resource;
 
 public interface DocumentService {
-    DocumentResponseDTO uploadDocument(Long startupId, String name, String description, MultipartFile file)
+    DocumentResponseDTO uploadDocument(Long startupId, String name, String description, String category,
+            MultipartFile file)
             throws IOException;
 
     List<DocumentResponseDTO> getDocumentsByStartup(Long startupId);

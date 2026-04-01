@@ -61,88 +61,119 @@ export default function NotificationsPage() {
 
     return (
         <div className="page-container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+            <div className="hero-section" style={{ 
+                marginBottom: 32, 
+                padding: '32px',
+                borderRadius: 'var(--r-lg)',
+                background: 'var(--navy-2)',
+                border: '1px solid var(--border)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+            }}>
                 <div>
-                    <h1 className="topbar-title">Notifications</h1>
-                    <p style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4 }}>
+                    <h1 className="hero-title" style={{ fontSize: '28px', marginBottom: '4px' }}>Inbox & Activity</h1>
+                    <p className="hero-subtitle" style={{ fontSize: '14px', color: 'var(--text-3)' }}>
                         Stay updated with platform activity
-                        {unreadCount > 0 && <span style={{ color: 'var(--warning)', fontWeight: 600 }}> · {unreadCount} unread</span>}
+                        {unreadCount > 0 && <span style={{ color: 'var(--warning)', fontWeight: 600 }}> · {unreadCount} new alerts</span>}
                     </p>
                 </div>
                 {unreadCount > 0 && (
-                    <button className="btn btn-secondary btn-sm" onClick={handleMarkAllRead}>✓ Mark all read</button>
+                    <button className="btn btn-primary" onClick={handleMarkAllRead}>✓ Archive All</button>
                 )}
             </div>
 
-            {/* Filter tabs */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
-                {types.map(t => (
-                    <button key={t} className={`btn btn-sm ${filter === t ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setFilter(t)}>
-                        {t}
-                    </button>
-                ))}
-            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 32 }}>
+                
+                {/* Activity Sidebar */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    <div className="card" style={{ padding: '16px' }}>
+                        <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-3)', marginBottom: '16px', letterSpacing: '1px' }}>FILTERS</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            {types.map(t => (
+                                <div 
+                                    key={t}
+                                    onClick={() => setFilter(t)}
+                                    style={{ 
+                                        padding: '10px 12px', 
+                                        borderRadius: '8px', 
+                                        background: filter === t ? 'var(--violet-dim)' : 'transparent', 
+                                        color: filter === t ? 'var(--violet)' : 'var(--text-3)', 
+                                        fontWeight: filter === t ? 'bold' : 'normal', 
+                                        fontSize: '13px', 
+                                        cursor: 'pointer',
+                                        transition: 'var(--anim)'
+                                    }}
+                                >
+                                    {t.charAt(0) + t.slice(1).toLowerCase().replace('_', ' ')}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
 
-            {loading ? (
-                <div className="loading-screen"><div className="spinner" /><p>Loading notifications...</p></div>
-            ) : filtered.length === 0 ? (
-                <div className="empty-state">
-                    <h3>No notifications</h3>
-                    <p>You're all caught up! New notifications will appear here.</p>
+                    <div className="card" style={{ padding: '16px', background: 'rgba(247, 37, 133, 0.05)', borderColor: 'rgba(247, 37, 133, 0.2)' }}>
+                        <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--pink)', marginBottom: '8px' }}>SUBSCRIBE</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-3)' }}>Want email alerts? Enable them in your account settings.</div>
+                    </div>
                 </div>
-            ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    {filtered.map((n, idx) => {
-                        const cfg = getConfig(n.type);
-                        const isUnread = !n.isRead && !n.read;
-                        return (
-                            <div
-                                key={n.id || idx}
-                                onClick={() => handleNotificationClick(n)}
-                                style={{
-                                    display: 'flex', gap: 16, padding: '16px 20px',
-                                    background: cfg.bg,
-                                    border: `1px solid ${isUnread ? cfg.color : cfg.border}`,
-                                    borderRadius: 'var(--radius-md)',
-                                    cursor: 'pointer',
-                                    opacity: isUnread ? 1 : 0.7,
-                                    animation: 'slideUp 0.3s ease',
-                                    animationDelay: `${idx * 0.05}s`,
-                                    animationFillMode: 'both',
-                                    transition: 'var(--transition-fast)',
-                                }}
-                            >
-                                <div style={{
-                                    width: 36, height: 36,
-                                    borderRadius: 8,
-                                    background: cfg.bg,
-                                    border: `1px solid ${cfg.border}`,
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    fontSize: 11, fontWeight: 800,
-                                    color: cfg.color,
-                                    flexShrink: 0, letterSpacing: '0.04em',
-                                }}>{cfg.icon}</div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: isUnread ? 700 : 500, fontSize: 14, color: 'var(--text-primary)', marginBottom: 4 }}>
-                                        {n.content || n.title || 'Notification'}
-                                    </div>
-                                    {n.createdAt && (
-                                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
-                                            {new Date(n.createdAt).toLocaleString()}
+
+                {/* Main Feed */}
+                <div>
+                    {loading ? (
+                        <div className="loading-screen"><div className="spinner" /><p>Syncing alerts...</p></div>
+                    ) : filtered.length === 0 ? (
+                        <div className="empty-state">
+                            <h3>No notifications</h3>
+                            <p>You're all caught up! New notifications will appear here.</p>
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            {filtered.map((n, idx) => {
+                                const cfg = getConfig(n.type);
+                                const isUnread = !n.isRead && !n.read;
+                                return (
+                                    <div
+                                        key={n.id || idx}
+                                        onClick={() => handleNotificationClick(n)}
+                                        className="card"
+                                        style={{
+                                            display: 'flex', gap: 16, padding: '20px 24px',
+                                            cursor: 'pointer',
+                                            opacity: isUnread ? 1 : 0.6,
+                                            borderColor: isUnread ? 'var(--violet-border)' : 'var(--border)',
+                                            transform: isUnread ? 'scale(1.01)' : 'scale(1)',
+                                            transition: 'var(--anim)'
+                                        }}
+                                    >
+                                        <div style={{
+                                            width: 44, height: 44,
+                                            borderRadius: 12,
+                                            background: cfg.bg,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            fontSize: 12, fontWeight: 800,
+                                            color: cfg.color,
+                                            flexShrink: 0
+                                        }}>{cfg.icon}</div>
+                                        
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontWeight: isUnread ? 700 : 500, fontSize: '15px', color: 'var(--text)', marginBottom: 4 }}>
+                                                {n.content || n.title || 'Notification'}
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: 'var(--text-3)' }}>
+                                                {new Date(n.createdAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                            </div>
                                         </div>
-                                    )}
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
-                                    <span className="badge" style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}>
-                                        {n.type || 'INFO'}
-                                    </span>
-                                    {isUnread && <span style={{ width: 8, height: 8, borderRadius: '50%', background: cfg.color }} />}
-                                </div>
-                            </div>
-                        );
-                    })}
+
+                                        {isUnread && (
+                                            <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--violet)', boxShadow: '0 0 10px var(--violet)' }} />
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
-            )}
+            </div>
         </div>
     );
 }

@@ -24,7 +24,7 @@ public class Document {
     private String filePath;
 
     private String description;
-
+    private String category;
     private LocalDateTime uploadDate = LocalDateTime.now();
 
     @ManyToOne

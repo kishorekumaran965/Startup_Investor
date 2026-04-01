@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 
@@ -51,14 +51,24 @@ function SplashLoader() {
 // Protected layout with sidebar
 function AppLayout() {
     const { isAuthenticated, loading } = useAuth();
+    const { pathname } = useLocation();
+    const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+
+    // Auto-close sidebar on mobile when navigating
+    React.useEffect(() => {
+        setIsSidebarOpen(false);
+    }, [pathname]);
+
     if (loading) return <SplashLoader />;
     if (!isAuthenticated) return <Navigate to="/login" replace />;
+
     return (
         <div className="app-layout">
-            <Sidebar />
-            <div className="main-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
-                <TopBar />
-                <main className="main-content" style={{ flex: 1, overflowY: 'auto' }}>
+            <div className={`sidebar-overlay ${isSidebarOpen ? 'mobile-open' : ''}`} onClick={() => setIsSidebarOpen(false)} />
+            <Sidebar isOpen={isSidebarOpen} />
+            <div className="main-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                <TopBar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+                <main className="main-content" style={{ flex: 1 }}>
                     <Outlet />
                 </main>
             </div>

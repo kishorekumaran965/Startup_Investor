@@ -150,7 +150,7 @@ const NAV = [
     },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen }) {
     const { user } = useAuth();
 
     // Track which sections are collapsed (initially all expanded)
@@ -160,17 +160,21 @@ export default function Sidebar() {
     };
 
     return (
-        <aside className="sidebar">
+        <aside className={`sidebar ${isOpen ? 'mobile-open' : ''}`}>
             {/* Logo area */}
-            <NavLink to="/dashboard" className="sidebar-logo">
-                <div className="logo-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <NavLink to="/dashboard" className="sidebar-logo" style={{ padding: '24px 20px', borderBottom: 'none' }}>
+                <div className="logo-icon" style={{ 
+                    width: 42, height: 42, 
+                    background: 'linear-gradient(135deg, var(--violet), var(--teal))',
+                    boxShadow: '0 0 20px var(--violet-dim)'
+                }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                     </svg>
                 </div>
                 <div>
-                    <div className="logo-text">VentureHub</div>
-                    <div className="logo-sub">Startup Ecosystem</div>
+                    <div className="logo-text" style={{ fontSize: '20px', letterSpacing: '-0.5px' }}>VentureHub</div>
+                    <div className="logo-sub" style={{ opacity: 0.6, fontSize: '11px' }}>Global Ecosystem</div>
                 </div>
             </NavLink>
 
@@ -234,6 +238,35 @@ export default function Sidebar() {
                 })
                 }
             </nav>
+            {/* User Profile in Sidebar Footer */}
+            <div style={{ marginTop: 'auto', padding: '16px' }}>
+                <div style={{
+                    padding: '12px',
+                    borderRadius: 'var(--r-md)',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid var(--border)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                }}>
+                    <div style={{
+                        width: 36, height: 36, borderRadius: '50%',
+                        background: 'linear-gradient(135deg, var(--violet), var(--teal))',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'white', fontWeight: 'bold', fontSize: '12px'
+                    }}>
+                        {user?.name?.[0]?.toUpperCase() || 'U'}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {user?.name || 'User'}
+                        </div>
+                        <div style={{ fontSize: '10px', color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            {user?.role}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </aside>
     );
 }

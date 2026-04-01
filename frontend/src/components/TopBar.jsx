@@ -310,7 +310,7 @@ function NotificationPanel({ notifications, onMarkRead, onMarkAllRead, onClose, 
 }
 
 /* ─── Main TopBar ─── */
-export default function TopBar() {
+export default function TopBar({ onToggleSidebar }) {
     const { user, logout } = useAuth();
     const { updateUser } = useAuth();
     const { theme, toggleTheme } = useTheme();
@@ -436,7 +436,40 @@ export default function TopBar() {
             )}
 
             <div className="topbar">
-                <div className="topbar-left" />
+                <button 
+                    className="topbar-icon-btn mobile-only" 
+                    onClick={onToggleSidebar}
+                    style={{ marginRight: 8 }}
+                >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+
+                <div className="topbar-left desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1 }}>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '12px',
+                        padding: '8px 16px',
+                        width: '100%',
+                        maxWidth: '400px',
+                        color: 'var(--text-3)',
+                        fontSize: '13px',
+                        cursor: 'text',
+                        transition: 'var(--anim)'
+                    }} 
+                    onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--violet-border)'}
+                    onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                        Search for startups, mentors, or documents...
+                        <div style={{ marginLeft: 'auto', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px', fontSize: '10px' }}>⌘K</div>
+                    </div>
+                </div>
 
                 <div className="topbar-right">
 
@@ -493,14 +526,21 @@ export default function TopBar() {
                                 className="topbar-profile-btn"
                                 onClick={() => { setShowMenu(v => !v); setShowNotifPanel(false); }}
                             >
-                                <div className="topbar-avatar" style={{ background: avatarBg }}>
+                                <div className="topbar-avatar" style={{ 
+                                    background: avatarBg,
+                                    border: `2px solid ${roleColor}66`,
+                                    boxShadow: `0 0 10px ${roleColor}33`
+                                }}>
                                     {!user.profilePhotoUrl && getInitials(user.name, user.email)}
                                 </div>
                                 <div className="topbar-user-info">
-                                    <span className="topbar-user-name">{user.name || user.email}</span>
-                                    <span className="topbar-user-role" style={{ color: roleColor }}>{user.role}</span>
+                                    <span className="topbar-user-name" style={{ fontSize: '14px' }}>{user.name || user.email}</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: roleColor }}></div>
+                                        <span className="topbar-user-role" style={{ color: roleColor, fontSize: '10px', fontWeight: 'bold' }}>{user.role}</span>
+                                    </div>
                                 </div>
-                                <span className="topbar-chevron">{showMenu ? '▲' : '▼'}</span>
+                                <span className="topbar-chevron" style={{ opacity: 0.5 }}>{showMenu ? '▲' : '▼'}</span>
                             </button>
 
                             {showMenu && (

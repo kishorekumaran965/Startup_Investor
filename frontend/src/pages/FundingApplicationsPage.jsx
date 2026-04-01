@@ -53,22 +53,43 @@ function useToast() {
 }
 
 /* ─── Apply Modal (for STARTUP users) ───────────────────────────────────── */
-function ApplyModal({ onClose, onSave, userStartups, investors }) {
-    const [form, setForm] = useState({ startupId: '', investorId: '', amount: '', message: '' });
+function ApplyModal({ onClose, onSave, userStartups, investors, allApps }) {
+    const [form, setForm] = useState({ startupId: '', investorId: '', amount: '', equityOffered: '10', message: '' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const selectedStartup = userStartups.find(s => s.id === Number(form.startupId));
+        const available = selectedStartup ? (selectedStartup.availableEquity ?? 100) : 100;
+        
+        // Calculate earmarked (Pending)
+        const pending = allApps
+            .filter(a => a.startupId === Number(form.startupId) && a.status === 'PENDING')
+            .reduce((sum, a) => sum + (a.equityOffered || 0), 0);
+
         if (!form.startupId) { setError('Please select your startup.'); return; }
         if (!form.investorId) { setError('Please select an investor to request funding from.'); return; }
         if (!form.amount || Number(form.amount) <= 0) { setError('Please enter a valid funding amount.'); return; }
+        if (!form.equityOffered || Number(form.equityOffered) <= 0 || Number(form.equityOffered) >= 100) { 
+            setError('Please enter a valid equity percentage (0-100).'); return; 
+        }
+        if (Number(form.equityOffered) + pending > available) {
+            if (pending > 0) {
+                setError(`Insufficient equity. Available: ${available.toFixed(2)}%, Earmarked in pending requests: ${pending.toFixed(2)}%. You can only offer up to ${(available - pending).toFixed(2)}% more.`);
+            } else {
+                setError(`You only have ${available.toFixed(2)}% equity available to offer.`);
+            }
+            return;
+        }
+        
         setLoading(true); setError('');
         try {
             await onSave({
                 startupId: Number(form.startupId),
                 investorId: Number(form.investorId),
                 amount: Number(form.amount),
+                equityOffered: Number(form.equityOffered),
                 message: form.message,
             });
             onClose();
@@ -120,6 +141,26 @@ function ApplyModal({ onClose, onSave, userStartups, investors }) {
                                 ))}
                             </select>
                         )}
+                        {form.startupId && (() => {
+                            const selected = userStartups.find(s => s.id === Number(form.startupId));
+                            const available = selected?.availableEquity ?? 100;
+                            const earmarked = allApps
+                                .filter(a => a.startupId === Number(form.startupId) && a.status === 'PENDING')
+                                .reduce((sum, a) => sum + (a.equityOffered || 0), 0);
+                            const remaining = available - earmarked;
+
+                            return (
+                                <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 4, fontWeight: 600 }}>
+                                    Available: <span style={{ color: 'var(--teal)' }}>{available.toFixed(2)}%</span>
+                                    {earmarked > 0 && (
+                                        <> | Earmarked: <span style={{ color: '#f59e0b' }}>{earmarked.toFixed(2)}%</span></>
+                                    )}
+                                    <span style={{ marginLeft: 8, color: remaining <= 0 ? '#ef4444' : 'var(--text-3)' }}>
+                                        (Net available: <strong>{remaining.toFixed(2)}%</strong>)
+                                    </span>
+                                </div>
+                            );
+                        })()}
                     </div>
 
                     {/* Investor selector */}
@@ -146,20 +187,37 @@ function ApplyModal({ onClose, onSave, userStartups, investors }) {
                         )}
                     </div>
 
-                    {/* Amount */}
-                    <div className="form-group">
-                        <label className="form-label">Amount Requested ($)</label>
-                        <input
-                            className="form-input"
-                            type="number"
-                            min="1"
-                            step="any"
-                            placeholder="e.g. 100,000"
-                            value={form.amount}
-                            onChange={e => setForm({ ...form, amount: e.target.value })}
-                            required
-                        />
+                    {/* Amount & Equity */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+                        <div className="form-group">
+                            <label className="form-label">Amount Required ($)</label>
+                            <input
+                                className="form-input"
+                                type="number"
+                                min="1"
+                                step="any"
+                                placeholder="100,000"
+                                value={form.amount}
+                                onChange={e => setForm({ ...form, amount: e.target.value })}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Equity Offered (%)</label>
+                            <input
+                                className="form-input"
+                                type="number"
+                                min="0.01"
+                                max="99.99"
+                                step="any"
+                                placeholder="10"
+                                value={form.equityOffered}
+                                onChange={e => setForm({ ...form, equityOffered: e.target.value })}
+                                required
+                            />
+                        </div>
                     </div>
+
 
                     {/* Pitch message */}
                     <div className="form-group">
@@ -275,12 +333,21 @@ function AppCard({ app, onAction, actionLoading }) {
                 <StatusBadge status={app.status} />
             </div>
 
-            {/* Amount */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 24, fontWeight: 800, color: '#10b981' }}>
-                    ${Number(app.amount || 0).toLocaleString()}
-                </span>
-                <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>requested</span>
+            {/* Amount & Equity */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 24, fontWeight: 800, color: '#10b981' }}>
+                        ${Number(app.amount || 0).toLocaleString()}
+                    </span>
+                    <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>requested</span>
+                </div>
+                <div style={{ height: 20, width: 1, background: 'var(--border)' }}></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 24, fontWeight: 800, color: 'var(--violet)' }}>
+                        {app.equityOffered || '0'}%
+                    </span>
+                    <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>equity</span>
+                </div>
             </div>
 
             {/* Message / Pitch */}
@@ -434,7 +501,7 @@ export default function FundingApplicationsPage() {
                 addToast({
                     icon: '✅',
                     title: 'Application Approved!',
-                    message: `You approved the $${Number(app.amount).toLocaleString()} request from ${app.startupName}. An investment record has been created and the founder notified.`,
+                    message: `You approved the $${Number(app.amount).toLocaleString()} request from ${app.startupName}. The Cap Table has been updated and an investment record created.`,
                     accentColor: '#10b981',
                     borderColor: 'rgba(16,185,129,0.3)',
                     duration: 6000,
@@ -492,6 +559,7 @@ export default function FundingApplicationsPage() {
                     onSave={handleApply}
                     userStartups={userStartups}
                     investors={investors}
+                    allApps={apps}
                 />
             )}
 
@@ -506,30 +574,25 @@ export default function FundingApplicationsPage() {
             )}
 
             {/* Page Header */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, gap: 16, flexWrap: 'wrap' }}>
+            <div className="hero-section" style={{ 
+                marginBottom: 32, 
+                padding: '32px',
+                borderRadius: 'var(--r-lg)',
+                background: 'var(--navy-2)',
+                border: '1px solid var(--border)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+            }}>
                 <div>
-                    <h1 className="topbar-title">{heading}</h1>
-                    <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>{subHeading}</p>
+                    <h1 className="hero-title" style={{ fontSize: '28px', marginBottom: '4px' }}>{heading}</h1>
+                    <p className="hero-subtitle" style={{ fontSize: '14px', color: 'var(--text-3)' }}>{subHeading}</p>
                 </div>
-
-                {/* Stats pills */}
-                <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-                    {isInvestor && pendingCount > 0 && (
-                        <span style={{
-                            background: 'rgba(245,158,11,0.12)', color: '#f59e0b',
-                            border: '1px solid rgba(245,158,11,0.3)', borderRadius: 20,
-                            padding: '4px 12px', fontSize: 12, fontWeight: 700,
-                            animation: 'pulse 2s infinite',
-                        }}>
-                            ⏳ {pendingCount} pending
-                        </span>
-                    )}
-                    {isStartup && (
-                        <button className="btn btn-primary" onClick={openApplyModal}>
-                            + Request Funding
-                        </button>
-                    )}
-                </div>
+                {isStartup && (
+                    <button className="btn btn-primary" style={{ padding: '12px 24px' }} onClick={openApplyModal}>
+                        Request New Funding
+                    </button>
+                )}
             </div>
 
             {/* Investor pending banner */}
@@ -590,7 +653,7 @@ export default function FundingApplicationsPage() {
                 <>
                     {/* ── Investor/Admin card view ── */}
                     {(isInvestor || isAdmin) ? (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 16 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
                             {filtered.map(app => (
                                 <AppCard
                                     key={app.id}
@@ -601,48 +664,54 @@ export default function FundingApplicationsPage() {
                             ))}
                         </div>
                     ) : (
-                        /* ── Startup table view ── */
-                        <div className="card">
-                            <div className="table-wrap">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Startup</th>
-                                            <th>Investor</th>
-                                            <th>Amount</th>
-                                            <th>Status</th>
-                                            <th>Date</th>
-                                            <th>Pitch</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {filtered.map(app => (
-                                            <tr key={app.id}>
-                                                <td style={{ color: 'var(--text-muted)', fontFamily: 'monospace', fontSize: 12 }}>#{app.id}</td>
-                                                <td style={{ fontWeight: 600 }}>{app.startupName || `Startup #${app.startupId}`}</td>
-                                                <td style={{ color: 'var(--text-secondary)', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3 }} onClick={() => app.investorId && navigate(`/users/${app.investorId}`)} title="View investor profile">{app.investorName || `User #${app.investorId}`}</td>
-                                                <td>
-                                                    <span style={{ fontWeight: 700, color: '#10b981' }}>
-                                                        ${Number(app.amount || 0).toLocaleString()}
-                                                    </span>
-                                                </td>
-                                                <td><StatusBadge status={app.status || 'PENDING'} /></td>
-                                                <td style={{ color: 'var(--text-muted)', fontSize: 12 }}>
-                                                    {app.applicationDate ? new Date(app.applicationDate).toLocaleDateString() : '—'}
-                                                </td>
-                                                <td style={{ maxWidth: 160, fontSize: 12, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                    {app.message ? `"${app.message.slice(0, 60)}${app.message.length > 60 ? '…' : ''}"` : '—'}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border)', fontSize: 13, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span>Showing {filtered.length} application{filtered.length !== 1 ? 's' : ''}</span>
-                                <button className="btn btn-primary btn-sm" onClick={openApplyModal}>+ New Request</button>
-                            </div>
+                        <div style={{ 
+                            display: 'grid', 
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
+                            gap: 20 
+                        }}>
+                            {filtered.map(app => (
+                                <div key={app.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: 20, padding: '28px', position: 'relative' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-3)', letterSpacing: '1px' }}>APPLICATION #{app.id}</div>
+                                        <StatusBadge status={app.status || 'PENDING'} />
+                                    </div>
+                                    
+                                    <div>
+                                        <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '4px' }}>{app.startupName || `Startup #${app.startupId}`}</h3>
+                                        <div style={{ fontSize: '13px', color: 'var(--text-3)' }}>
+                                            Managing Investor: <strong style={{ color: 'var(--violet)' }}>{app.investorName || `User #${app.investorId}`}</strong>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ 
+                                        padding: '16px', 
+                                        background: 'rgba(255,255,255,0.03)', 
+                                        borderRadius: '12px', 
+                                        border: '1px solid var(--border)',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                    }}>
+                                        <div>
+                                            <div style={{ fontSize: '10px', color: 'var(--text-3)', fontWeight: 'bold', marginBottom: '2px' }}>AMOUNT</div>
+                                            <div style={{ fontSize: '20px', fontWeight: '900', color: 'var(--teal)' }}>${Number(app.amount || 0).toLocaleString()}</div>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <div style={{ fontSize: '10px', color: 'var(--text-3)', fontWeight: 'bold', marginBottom: '2px' }}>EQUITY</div>
+                                            <div style={{ fontSize: '20px', fontWeight: '900', color: 'var(--violet)' }}>{app.equityOffered}%</div>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ fontSize: '13px', color: 'var(--text-3)', fontStyle: 'italic', opacity: 0.8 }}>
+                                        {app.message ? `"${app.message.slice(0, 100)}${app.message.length > 100 ? '...' : ''}"` : 'No pitch message provided.'}
+                                    </div>
+
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
+                                        <div style={{ fontSize: '11px', color: 'var(--text-3)' }}>{app.applicationDate ? new Date(app.applicationDate).toLocaleDateString() : '—'}</div>
+                                        <button className="btn btn-ghost" onClick={() => navigate(`/startups/${app.startupId}`)}>Details</button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     )}
                 </>

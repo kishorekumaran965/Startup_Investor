@@ -24,6 +24,7 @@ public class FundingApplication {
     private User investor;
 
     private Double amount;
+    private Double equityOffered; // Percentage (e.g. 10.0 for 10%)
 
     private String message;
 

@@ -129,58 +129,79 @@ export default function MessagesPage() {
     const roleColors = { ADMIN: '#ef4444', STARTUP: '#6366f1', INVESTOR: '#10b981', MENTOR: '#f59e0b', RESEARCHER: '#06b6d4' };
 
     return (
-        <div className="page-container" style={{ height: 'calc(100vh - 40px)', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ marginBottom: 16 }}>
-                <h1 className="topbar-title">💬 Messages</h1>
-                <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Chat with anyone in the ecosystem</p>
+        <div className="page-container" style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+            {/* Header section in its own bento block or hero */}
+            <div className="hero-section" style={{ 
+                marginBottom: 24, 
+                padding: '24px 32px',
+                borderRadius: 'var(--r-lg)',
+                background: 'var(--navy-2)',
+                border: '1px solid var(--border)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+            }}>
+                <div>
+                    <h1 className="hero-title" style={{ fontSize: '24px', marginBottom: '4px' }}>Ecosystem Direct</h1>
+                    <p className="hero-subtitle" style={{ fontSize: '13px', color: 'var(--text-3)' }}>Secure end-to-end messaging across the platform</p>
+                </div>
+                <div style={{ display: 'flex', gap: 12 }}>
+                   <div style={{ background: 'var(--bg-card)', padding: '8px 16px', borderRadius: '10px', border: '1px solid var(--border)', fontSize: '12px', fontWeight: 'bold', color: 'var(--teal)' }}>ENCRYPTED</div>
+                </div>
             </div>
 
-            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '280px 1fr', gap: 16, minHeight: 0, overflow: 'hidden' }}>
-                {/* Users List */}
-                <div className="card" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                    <input className="form-input" style={{ marginBottom: 12, flexShrink: 0 }} placeholder="🔍 Search users..." value={searchUser} onChange={e => setSearchUser(e.target.value)} />
-                    <div style={{ flex: 1, overflowY: 'auto' }}>
+            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '320px 1fr', gap: 24, minHeight: 0 }}>
+                {/* Users List - Detached Glass Brick */}
+                <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '20px', overflow: 'hidden' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-3)', marginBottom: '16px', letterSpacing: '1px' }}>CONTACTS</div>
+                    <div style={{ position: 'relative', marginBottom: '20px' }}>
+                        <input 
+                            className="form-input" 
+                            style={{ paddingLeft: '40px', height: '44px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)' }} 
+                            placeholder="Search contacts..." 
+                            value={searchUser} 
+                            onChange={e => setSearchUser(e.target.value)} 
+                        />
+                        <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }}>🔍</span>
+                    </div>
+
+                    <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {loading ? <div className="spinner" style={{ margin: '20px auto' }} /> :
                             filteredUsers.map(u => (
                                 <div
                                     key={u.id}
                                     onClick={() => loadConversation(u)}
                                     style={{
-                                        display: 'flex', gap: 10, alignItems: 'center', padding: '10px 12px',
-                                        borderRadius: 'var(--radius-sm)', cursor: 'pointer',
-                                        background: selectedUser?.id === u.id ? 'rgba(99,102,241,0.12)' : 'transparent',
-                                        border: selectedUser?.id === u.id ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
-                                        transition: 'var(--transition-fast)', marginBottom: 4,
+                                        display: 'flex', gap: 12, alignItems: 'center', padding: '12px',
+                                        borderRadius: '12px', cursor: 'pointer',
+                                        background: selectedUser?.id === u.id ? 'var(--violet-dim)' : 'transparent',
+                                        border: selectedUser?.id === u.id ? '1px solid var(--violet-border)' : '1px solid transparent',
+                                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                                     }}
                                 >
                                     <div style={{
-                                        width: 36, height: 36, borderRadius: '50%',
+                                        width: 44, height: 44, borderRadius: '12px',
                                         background: `linear-gradient(135deg, ${roleColors[u.role] || '#6366f1'}, #6366f1)`,
                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        color: '#fff', fontSize: 14, fontWeight: 700, flexShrink: 0,
+                                        color: '#fff', fontSize: 16, fontWeight: 800, flexShrink: 0,
+                                        boxShadow: selectedUser?.id === u.id ? `0 0 15px ${roleColors[u.role]}33` : 'none'
                                     }}>
                                         {(u.name || u.email || '?').charAt(0).toUpperCase()}
                                     </div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        <div style={{ fontSize: '14px', fontWeight: '700', color: selectedUser?.id === u.id ? 'var(--text)' : 'var(--text-2)', marginBottom: '2px' }}>
                                             {u.name || u.email}
                                         </div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <div style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '140px' }}>
-                                                {u.lastMessage || u.role}
-                                            </div>
-                                            {u.lastMessageTime && (
-                                                <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>
-                                                    {new Date(u.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                </div>
-                                            )}
+                                        <div style={{ fontSize: '12px', color: 'var(--text-3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            {u.role}
                                         </div>
                                     </div>
                                     {unreadCounts[u.id] > 0 && selectedUser?.id !== u.id && (
                                         <div style={{
-                                            background: 'var(--success)', color: 'white', borderRadius: '50%',
-                                            width: 20, height: 20, minWidth: 20, fontSize: 12, fontWeight: 'bold',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 8
+                                            background: 'var(--violet)', color: 'white', borderRadius: '50%',
+                                            width: 18, height: 18, fontSize: '10px', fontWeight: 'bold',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            boxShadow: '0 0 10px var(--violet)'
                                         }}>
                                             {unreadCounts[u.id]}
                                         </div>
@@ -201,51 +222,60 @@ export default function MessagesPage() {
                     ) : (
                         <>
                             {/* Chat Header */}
-                            <div style={{ display: 'flex', gap: 12, alignItems: 'center', paddingBottom: 12, borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+                            <div style={{ display: 'flex', gap: 16, alignItems: 'center', padding: '24px', borderBottom: '1px solid var(--border)', flexShrink: 0, background: 'rgba(255,255,255,0.01)' }}>
                                 <div style={{
-                                    width: 40, height: 40, borderRadius: '50%',
+                                    width: 48, height: 48, borderRadius: '14px',
                                     background: `linear-gradient(135deg, ${roleColors[selectedUser.role] || '#6366f1'}, #6366f1)`,
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    color: '#fff', fontSize: 16, fontWeight: 700,
+                                    color: '#fff', fontSize: 18, fontWeight: 800,
                                 }}>
                                     {(selectedUser.name || selectedUser.email || '?').charAt(0).toUpperCase()}
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: 600, fontSize: 15, color: 'var(--text-primary)' }}>{selectedUser.name || selectedUser.email}</div>
-                                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{selectedUser.role} · {selectedUser.email}</div>
+                                    <div style={{ fontWeight: 800, fontSize: '18px', color: 'var(--text)', marginBottom: '2px' }}>{selectedUser.name || selectedUser.email}</div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--teal)', boxShadow: '0 0 8px var(--teal)' }}></span>
+                                        <span style={{ fontSize: '12px', color: 'var(--text-3)', fontWeight: 'bold' }}>{selectedUser.role}</span>
+                                    </div>
                                 </div>
-                                <button className="btn btn-secondary btn-sm" onClick={() => setSelectedUser(null)}>✕ Close</button>
+                                <button className="btn btn-ghost" onClick={() => setSelectedUser(null)}>Archive Chat</button>
                             </div>
 
-                            {/* Messages */}
-                            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            {/* Messages Container */}
+                            <div style={{ flex: 1, overflowY: 'auto', padding: '32px', display: 'flex', flexDirection: 'column', gap: 12, background: 'rgba(0,0,0,0.1)' }}>
                                 {chatLoading ? <div className="spinner" style={{ margin: '40px auto' }} /> :
                                     messages.length === 0 ? (
-                                        <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 13, marginTop: 40 }}>No messages yet. Say hello! 👋</p>
+                                        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', opacity: 0.5 }}>
+                                            <div style={{ fontSize: '32px', marginBottom: '8px' }}>👋</div>
+                                            <p style={{ fontSize: '13px' }}>Start a secure conversation</p>
+                                        </div>
                                     ) : messages.map((m, i) => (
                                         <div key={m.id || i} style={{
                                             alignSelf: m.senderId === user?.id ? 'flex-end' : 'flex-start',
-                                            background: m.senderId === user?.id ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : 'var(--surface)',
-                                            color: m.senderId === user?.id ? '#fff' : 'var(--text-primary)',
-                                            padding: '10px 16px', borderRadius: '18px 18px ' + (m.senderId === user?.id ? '2px 18px' : '18px 2px'),
-                                            maxWidth: '70%', fontSize: 14, lineHeight: 1.5,
+                                            background: m.senderId === user?.id ? 'linear-gradient(135deg, var(--violet), var(--pink))' : 'rgba(255,255,255,0.04)',
+                                            color: '#fff',
+                                            padding: '12px 20px', 
+                                            borderRadius: m.senderId === user?.id ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
+                                            maxWidth: '70%', 
+                                            fontSize: '14px', 
+                                            lineHeight: 1.6,
                                             border: m.senderId === user?.id ? 'none' : '1px solid var(--border)',
-                                            boxShadow: m.senderId === user?.id ? '0 4px 12px rgba(99,102,241,0.2)' : 'none',
-                                            position: 'relative'
+                                            boxShadow: m.senderId === user?.id ? '0 10px 25px -10px var(--violet)' : 'none',
+                                            position: 'relative',
+                                            animation: 'slideUp 0.3s ease-out'
                                         }}>
                                             {m.content}
                                             <div style={{
-                                                fontSize: 10,
-                                                opacity: 0.7,
-                                                marginTop: 4,
+                                                fontSize: '10px',
+                                                opacity: 0.6,
+                                                marginTop: 6,
                                                 display: 'flex',
                                                 justifyContent: 'flex-end',
-                                                alignItems: 'center',
-                                                gap: 4
+                                                gap: 6
                                             }}>
                                                 {m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                                                 {m.senderId === user?.id && (
-                                                    <span>{m.read ? '✔✔' : '✔'}</span>
+                                                    <span style={{ fontWeight: 'bold' }}>{m.read ? 'READ' : 'SENT'}</span>
                                                 )}
                                             </div>
                                         </div>
@@ -254,12 +284,26 @@ export default function MessagesPage() {
                                 <div ref={messagesEndRef} />
                             </div>
 
-                            {/* Input */}
-                            <div style={{ display: 'flex', gap: 8, borderTop: '1px solid var(--border)', paddingTop: 12, flexShrink: 0 }}>
-                                <input className="form-input" style={{ flex: 1 }} placeholder="Type a message..." value={msg}
-                                    onChange={e => setMsg(e.target.value)}
-                                    onKeyDown={e => e.key === 'Enter' && handleSend()} />
-                                <button className="btn btn-primary" onClick={handleSend} disabled={!msg.trim()}>Send →</button>
+                            {/* Input Form */}
+                            <div style={{ padding: '24px', borderTop: '1px solid var(--border)', flexShrink: 0, background: 'rgba(255,255,255,0.01)' }}>
+                                <div style={{ display: 'flex', gap: 12 }}>
+                                    <input 
+                                        className="form-input" 
+                                        style={{ flex: 1, padding: '16px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)' }} 
+                                        placeholder="Transmit message..." 
+                                        value={msg}
+                                        onChange={e => setMsg(e.target.value)}
+                                        onKeyDown={e => e.key === 'Enter' && handleSend()} 
+                                    />
+                                    <button 
+                                        className="btn btn-primary" 
+                                        style={{ padding: '0 24px', borderRadius: '12px' }} 
+                                        onClick={handleSend} 
+                                        disabled={!msg.trim()}
+                                    >
+                                        Send
+                                    </button>
+                                </div>
                             </div>
                         </>
                     )}

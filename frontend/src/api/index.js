@@ -10,6 +10,11 @@ const getHeaders = () => {
 
 const handleResponse = async (res) => {
     if (res.status === 401) {
+        if (res.url && res.url.includes('/auth/login')) {
+            const text = await res.text();
+            throw new Error(text || 'Invalid email or password');
+        }
+        
         console.warn('Unauthorized request detected. Clearing session...');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -188,4 +193,9 @@ export const forumApi = {
     getPost: (id) => api.get(`/forum/posts/${id}`),
     addComment: (data) => api.post('/forum/comments', data),
     getComments: (postId) => api.get(`/forum/posts/${postId}/comments`),
+};
+
+// Cap Table
+export const capTableApi = {
+    getForStartup: (startupId) => api.get(`/captable/startup/${startupId}`),
 };

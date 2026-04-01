@@ -25,6 +25,7 @@ public class FundingApplicationServiceImpl implements FundingApplicationService 
         private final UserRepositary userRepository;
         private final InvestmentRepositary investmentRepository;
         private final NotificationService notificationService;
+        private final com.example.demo.Repositary.CapTableRepositary capTableRepository;
 
         @Override
         public FundingApplicationResponseDTO applyForFunding(FundingApplicationRequestDTO dto) {
@@ -33,10 +34,26 @@ public class FundingApplicationServiceImpl implements FundingApplicationService 
                 User investor = userRepository.findById(dto.getInvestorId())
                                 .orElseThrow(() -> new RuntimeException("Investor not found"));
 
+                Double offered = dto.getEquityOffered() != null ? dto.getEquityOffered() : 10.0;
+                
+                // Calculate total earmarked equity (Pending requests)
+                List<FundingApplication> pendingApps = applicationRepository.findByStartupId(startup.getId())
+                    .stream().filter(a -> "PENDING".equalsIgnoreCase(a.getStatus())).toList();
+                Double totalEarmarked = pendingApps.stream().mapToDouble(FundingApplication::getEquityOffered).sum();
+
+                // Validate against available equity
+                Double available = startup.getAvailableEquity() != null ? startup.getAvailableEquity() : 100.0;
+                if (offered + totalEarmarked > available) {
+                    String msg = String.format("Insufficient available equity. Available: %.2f%%, Already earmarked: %.2f%%. Remaining: %.2f%%.", 
+                        available, totalEarmarked, available - totalEarmarked);
+                    throw new RuntimeException(msg);
+                }
+
                 FundingApplication application = new FundingApplication();
                 application.setStartup(startup);
                 application.setInvestor(investor);
                 application.setAmount(dto.getAmount());
+                application.setEquityOffered(offered);
                 application.setMessage(dto.getMessage());
 
                 FundingApplication savedApplication = applicationRepository.save(application);
@@ -85,7 +102,7 @@ public class FundingApplicationServiceImpl implements FundingApplicationService 
                                                 + status.toUpperCase(),
                                 "APPLICATION_STATUS_UPDATE");
 
-                // If approved, create an Investment record automatically
+                // If approved, create an Investment record and UPDATE CAP TABLE
                 if (status.equalsIgnoreCase("APPROVED")) {
                         Investment investment = new Investment();
                         investment.setAmount(application.getAmount());
@@ -93,6 +110,51 @@ public class FundingApplicationServiceImpl implements FundingApplicationService 
                         investment.setStartup(application.getStartup());
                         investment.setInvestmentDate(LocalDate.now());
                         investmentRepository.save(investment);
+
+                        // --- CAP TABLE LOGIC ---
+                        Startup startup = application.getStartup();
+                        Double investorEquityPercent = application.getEquityOffered();
+
+                        // Null-safe total shares
+                        Long totalShares = startup.getTotalAuthorizedShares();
+                        if (totalShares == null) totalShares = 10000000L;
+
+                        List<com.example.demo.Entity.CapTableEntry> existingEntries = capTableRepository.findByStartupId(startup.getId());
+                        
+                        // Dilute ALL existing shareholders
+                        for (com.example.demo.Entity.CapTableEntry entry : existingEntries) {
+                            Double currentPercent = entry.getOwnershipPercentage();
+                            entry.setOwnershipPercentage(currentPercent * (1 - (investorEquityPercent / 100.0)));
+                            entry.setShares(Math.round((entry.getOwnershipPercentage() / 100.0) * totalShares));
+                            capTableRepository.save(entry);
+                        }
+
+                        // Check if this investor already has an entry to consolidate
+                        com.example.demo.Entity.CapTableEntry investorEntry = existingEntries.stream()
+                            .filter(e -> e.getOwnerUser() != null && e.getOwnerUser().getId().equals(application.getInvestor().getId()))
+                            .findFirst().orElse(null);
+
+                        if (investorEntry != null) {
+                            // Update existing (already diluted) entry with the new stake
+                            investorEntry.setOwnershipPercentage(investorEntry.getOwnershipPercentage() + investorEquityPercent);
+                            investorEntry.setShares(Math.round((investorEntry.getOwnershipPercentage() / 100.0) * totalShares));
+                            capTableRepository.save(investorEntry);
+                        } else {
+                            // Create new entry
+                            investorEntry = new com.example.demo.Entity.CapTableEntry();
+                            investorEntry.setStartup(startup);
+                            investorEntry.setOwnerName(application.getInvestor().getName());
+                            investorEntry.setOwnerUser(application.getInvestor());
+                            investorEntry.setOwnerType("INVESTOR");
+                            investorEntry.setOwnershipPercentage(investorEquityPercent);
+                            investorEntry.setShares(Math.round((investorEquityPercent / 100.0) * totalShares));
+                            capTableRepository.save(investorEntry);
+                        }
+
+                        // Update available equity on startup
+                        Double remaining = (startup.getAvailableEquity() != null ? startup.getAvailableEquity() : 100.0) - investorEquityPercent;
+                        startup.setAvailableEquity(Math.max(0, remaining));
+                        startupRepository.save(startup);
                 }
 
                 return convertToDTO(applicationRepository.save(application));
@@ -106,6 +168,7 @@ public class FundingApplicationServiceImpl implements FundingApplicationService 
                 dto.setInvestorId(application.getInvestor().getId());
                 dto.setInvestorName(application.getInvestor().getName());
                 dto.setAmount(application.getAmount());
+                dto.setEquityOffered(application.getEquityOffered());
                 dto.setMessage(application.getMessage());
                 dto.setStatus(application.getStatus());
                 dto.setApplicationDate(application.getApplicationDate());

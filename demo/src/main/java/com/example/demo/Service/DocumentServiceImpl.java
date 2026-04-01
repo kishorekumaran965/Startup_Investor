@@ -48,7 +48,8 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public DocumentResponseDTO uploadDocument(Long startupId, String name, String description, MultipartFile file)
+    public DocumentResponseDTO uploadDocument(Long startupId, String name, String description, String category,
+            MultipartFile file)
             throws IOException {
         init();
         Startup startup = startupRepository.findById(startupId)
@@ -66,6 +67,7 @@ public class DocumentServiceImpl implements DocumentService {
         document.setFileType(file.getContentType());
         document.setFilePath(targetLocation.toString());
         document.setDescription(description);
+        document.setCategory(category);
         document.setStartup(startup);
         document.setUploadDate(LocalDateTime.now());
 
@@ -181,6 +183,7 @@ public class DocumentServiceImpl implements DocumentService {
         dto.setFileName(document.getFileName());
         dto.setFileType(document.getFileType());
         dto.setDescription(document.getDescription());
+        dto.setCategory(document.getCategory());
         dto.setUploadDate(document.getUploadDate().toString());
         dto.setStartupId(document.getStartup().getId());
         dto.setStartupName(document.getStartup().getName());

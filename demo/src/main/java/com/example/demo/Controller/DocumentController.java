@@ -27,9 +27,10 @@ public class DocumentController {
             @RequestParam("startupId") Long startupId,
             @RequestParam("name") String name,
             @RequestParam("description") String description,
+            @RequestParam("category") String category,
             @RequestParam("file") MultipartFile file) throws IOException {
 
-        DocumentResponseDTO responseDTO = documentService.uploadDocument(startupId, name, description, file);
+        DocumentResponseDTO responseDTO = documentService.uploadDocument(startupId, name, description, category, file);
         return ResponseEntity.ok(responseDTO);
     }
 
