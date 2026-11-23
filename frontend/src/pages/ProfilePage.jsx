@@ -108,7 +108,17 @@ function InvestorProfileSection({ userId, roleColor }) {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [form, setForm] = useState({ firmName: '', investmentFocus: '', minInvestmentSize: '', maxInvestmentSize: '', bio: '' });
+    const [form, setForm] = useState({ 
+        firmName: '', investmentFocus: '', minInvestmentSize: '', maxInvestmentSize: '', bio: '',
+        investorType: 'Individual', location: '', totalInvestmentBudget: '', availableCapital: '',
+        preferredStages: 'IDEA,MVP,GROWTH', preferredBusinessModels: 'B2B SaaS,Marketplace',
+        preferredLocations: '', riskTolerance: 'Medium', investmentStrategy: 'Balanced',
+        preferredEquityMin: '5', preferredEquityMax: '20', investmentHorizon: '3-5 years',
+        previousInvestmentCount: '0', successfulInvestments: '0', investmentExperience: 'Intermediate'
+    });
+    const [showMatches, setShowMatches] = useState(false);
+    const [matches, setMatches] = useState([]);
+    const [loadingMatches, setLoadingMatches] = useState(false);
     const [toast, setToast] = useState(null);
 
     useEffect(() => {
@@ -121,6 +131,21 @@ function InvestorProfileSection({ userId, roleColor }) {
                     minInvestmentSize: p.minInvestmentSize ?? '',
                     maxInvestmentSize: p.maxInvestmentSize ?? '',
                     bio: p.bio || '',
+                    investorType: p.investorType || 'Individual',
+                    location: p.location || '',
+                    totalInvestmentBudget: p.totalInvestmentBudget ?? '',
+                    availableCapital: p.availableCapital ?? '',
+                    preferredStages: p.preferredStages || 'IDEA,MVP,GROWTH',
+                    preferredBusinessModels: p.preferredBusinessModels || 'B2B SaaS,Marketplace',
+                    preferredLocations: p.preferredLocations || '',
+                    riskTolerance: p.riskTolerance || 'Medium',
+                    investmentStrategy: p.investmentStrategy || 'Balanced',
+                    preferredEquityMin: p.preferredEquityMin ?? '5',
+                    preferredEquityMax: p.preferredEquityMax ?? '20',
+                    investmentHorizon: p.investmentHorizon || '3-5 years',
+                    previousInvestmentCount: p.previousInvestmentCount ?? '0',
+                    successfulInvestments: p.successfulInvestments ?? '0',
+                    investmentExperience: p.investmentExperience || 'Intermediate'
                 });
             })
             .catch(() => setProfile(null))
@@ -142,10 +167,25 @@ function InvestorProfileSection({ userId, roleColor }) {
                 minInvestmentSize: form.minInvestmentSize !== '' ? parseFloat(form.minInvestmentSize) : null,
                 maxInvestmentSize: form.maxInvestmentSize !== '' ? parseFloat(form.maxInvestmentSize) : null,
                 bio: form.bio,
+                investorType: form.investorType,
+                location: form.location,
+                totalInvestmentBudget: form.totalInvestmentBudget !== '' ? parseFloat(form.totalInvestmentBudget) : 0,
+                availableCapital: form.availableCapital !== '' ? parseFloat(form.availableCapital) : 0,
+                preferredStages: form.preferredStages,
+                preferredBusinessModels: form.preferredBusinessModels,
+                preferredLocations: form.preferredLocations,
+                riskTolerance: form.riskTolerance,
+                investmentStrategy: form.investmentStrategy,
+                preferredEquityMin: form.preferredEquityMin !== '' ? parseFloat(form.preferredEquityMin) : 5,
+                preferredEquityMax: form.preferredEquityMax !== '' ? parseFloat(form.preferredEquityMax) : 20,
+                investmentHorizon: form.investmentHorizon,
+                previousInvestmentCount: form.previousInvestmentCount !== '' ? parseInt(form.previousInvestmentCount) : 0,
+                successfulInvestments: form.successfulInvestments !== '' ? parseInt(form.successfulInvestments) : 0,
+                investmentExperience: form.investmentExperience
             };
             const updated = await investorProfilesApi.updateByUserId(userId, payload);
             setProfile(updated);
-            showToast('Investor profile saved!');
+            showToast('Investor preferences saved!');
         } catch (err) {
             showToast(err.message || 'Failed to save', 'error');
         } finally {
@@ -153,57 +193,209 @@ function InvestorProfileSection({ userId, roleColor }) {
         }
     };
 
+    const loadMatchingStartups = async () => {
+        setLoadingMatches(true);
+        setShowMatches(true);
+        try {
+            const data = await investorProfilesApi.getMatchingStartups(userId);
+            setMatches(data || []);
+        } catch (err) {
+            showToast('Failed to load matching startups: ' + err.message, 'error');
+        } finally {
+            setLoadingMatches(false);
+        }
+    };
+
     return (
         <div className="card" style={{ marginBottom: 18, padding: '22px 28px' }}>
             {toast && <Toast message={toast.message} type={toast.type} onDismiss={() => setToast(null)} />}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-                <div style={{
-                    width: 32, height: 32, borderRadius: 9,
-                    background: 'rgba(61,186,120,0.12)', color: '#3dba78',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                    <BriefcaseIcon />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{
+                        width: 32, height: 32, borderRadius: 9,
+                        background: 'rgba(61,186,120,0.12)', color: '#3dba78',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                        <BriefcaseIcon />
+                    </div>
+                    <div>
+                        <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>Investor Profile & Matching Preferences</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Powers the Investor–Startup Weighted Matching Algorithm</div>
+                    </div>
                 </div>
-                <div>
-                    <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>Investor Profile</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Visible to startups and other users</div>
-                </div>
+                <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    style={{ fontSize: 12, padding: '6px 14px', display: 'flex', alignItems: 'center', gap: 6 }}
+                    onClick={loadMatchingStartups}
+                >
+                    🎯 Find Matching Startups
+                </button>
             </div>
 
             {loading ? (
                 <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 0' }}><div className="spinner" /></div>
             ) : (
                 <form onSubmit={handleSave}>
+                    {/* Basic Info */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
                         <div className="form-group">
                             <label className="form-label">Firm / Organization</label>
-                            <input className="form-input" placeholder="e.g. Sequoia Capital" value={form.firmName} onChange={e => setForm({ ...form, firmName: e.target.value })} />
+                            <input className="form-input" placeholder="e.g. Angel Network / Self" value={form.firmName} onChange={e => setForm({ ...form, firmName: e.target.value })} />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Investment Focus</label>
-                            <input className="form-input" placeholder="e.g. Fintech, AI, Healthcare" value={form.investmentFocus} onChange={e => setForm({ ...form, investmentFocus: e.target.value })} />
+                            <label className="form-label">Investor Type</label>
+                            <select className="form-select" value={form.investorType} onChange={e => setForm({ ...form, investorType: e.target.value })}>
+                                <option value="Individual">Individual / Angel Investor</option>
+                                <option value="Venture Capital">Venture Capital Firm</option>
+                                <option value="Investment Company">Investment Syndicate / Fund</option>
+                                <option value="Family Office">Family Office</option>
+                            </select>
                         </div>
                     </div>
+
+                    {/* Financial Capacity */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
                         <div className="form-group">
-                            <label className="form-label">Min Investment ($)</label>
+                            <label className="form-label">Total Investment Budget ($)</label>
+                            <input className="form-input" type="number" placeholder="500000" value={form.totalInvestmentBudget} onChange={e => setForm({ ...form, totalInvestmentBudget: e.target.value })} />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Available Capital Currently ($)</label>
+                            <input className="form-input" type="number" placeholder="300000" value={form.availableCapital} onChange={e => setForm({ ...form, availableCapital: e.target.value })} />
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+                        <div className="form-group">
+                            <label className="form-label">Min Investment Per Deal ($)</label>
                             <input className="form-input" type="number" placeholder="10000" value={form.minInvestmentSize} onChange={e => setForm({ ...form, minInvestmentSize: e.target.value })} />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Max Investment ($)</label>
-                            <input className="form-input" type="number" placeholder="500000" value={form.maxInvestmentSize} onChange={e => setForm({ ...form, maxInvestmentSize: e.target.value })} />
+                            <label className="form-label">Max Investment Per Deal ($)</label>
+                            <input className="form-input" type="number" placeholder="200000" value={form.maxInvestmentSize} onChange={e => setForm({ ...form, maxInvestmentSize: e.target.value })} />
                         </div>
                     </div>
+
+                    {/* Preferences for Matching */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+                        <div className="form-group">
+                            <label className="form-label">Preferred Industries (comma-separated)</label>
+                            <input className="form-input" placeholder="e.g. Technology,FinTech,Healthcare" value={form.investmentFocus} onChange={e => setForm({ ...form, investmentFocus: e.target.value })} />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Preferred Stages (comma-separated)</label>
+                            <input className="form-input" placeholder="e.g. IDEA,MVP,GROWTH" value={form.preferredStages} onChange={e => setForm({ ...form, preferredStages: e.target.value })} />
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14, marginBottom: 14 }}>
+                        <div className="form-group">
+                            <label className="form-label">Risk Tolerance</label>
+                            <select className="form-select" value={form.riskTolerance} onChange={e => setForm({ ...form, riskTolerance: e.target.value })}>
+                                <option value="Low">Low (Prefers Scaling / Low Risk)</option>
+                                <option value="Medium">Medium (Balanced MVP / Growth)</option>
+                                <option value="High">High (Comfortable with Early Idea / Seed)</option>
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Investment Strategy</label>
+                            <select className="form-select" value={form.investmentStrategy} onChange={e => setForm({ ...form, investmentStrategy: e.target.value })}>
+                                <option value="Conservative">Conservative</option>
+                                <option value="Balanced">Balanced</option>
+                                <option value="Aggressive">Aggressive</option>
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Investment Horizon</label>
+                            <select className="form-select" value={form.investmentHorizon} onChange={e => setForm({ ...form, investmentHorizon: e.target.value })}>
+                                <option value="1-2 years">1-2 years (Short)</option>
+                                <option value="3-5 years">3-5 years (Standard)</option>
+                                <option value="5+ years">5+ years (Long)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+                        <div className="form-group">
+                            <label className="form-label">Preferred Equity Range (%)</label>
+                            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                <input className="form-input" type="number" placeholder="Min %" value={form.preferredEquityMin} onChange={e => setForm({ ...form, preferredEquityMin: e.target.value })} />
+                                <span style={{ color: 'var(--text-3)' }}>to</span>
+                                <input className="form-input" type="number" placeholder="Max %" value={form.preferredEquityMax} onChange={e => setForm({ ...form, preferredEquityMax: e.target.value })} />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Investment Experience Level</label>
+                            <select className="form-select" value={form.investmentExperience} onChange={e => setForm({ ...form, investmentExperience: e.target.value })}>
+                                <option value="Beginner">Beginner (1-2 deals)</option>
+                                <option value="Intermediate">Intermediate (3-8 deals)</option>
+                                <option value="Experienced">Experienced (8+ deals)</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div className="form-group" style={{ marginBottom: 18 }}>
                         <label className="form-label">About / Investment Philosophy</label>
-                        <textarea className="form-textarea" rows={3} placeholder="Describe your investment thesis and what you look for in startups…" value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })} style={{ resize: 'vertical', minHeight: 80 }} />
+                        <textarea className="form-textarea" rows={3} placeholder="Describe your investment thesis, what you look for in founders, and how you provide value beyond capital…" value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })} style={{ resize: 'vertical', minHeight: 70 }} />
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                         <button type="submit" className="btn btn-primary" disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: 7, background: '#3dba78', borderColor: '#3dba78' }}>
-                            <SaveIcon />{saving ? 'Saving…' : 'Save Investor Profile'}
+                            <SaveIcon />{saving ? 'Saving…' : 'Save Matching Preferences'}
                         </button>
                     </div>
                 </form>
+            )}
+
+            {/* Matched Startups Drawer / Modal */}
+            {showMatches && (
+                <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                        <h4 style={{ margin: 0, fontSize: 16, color: 'var(--text-1)' }}>🎯 Top Recommended Startups for You</h4>
+                        <button type="button" className="btn btn-ghost" style={{ fontSize: 12 }} onClick={() => setShowMatches(false)}>✕ Close</button>
+                    </div>
+
+                    {loadingMatches ? (
+                        <div style={{ textAlign: 'center', padding: '20px 0' }}><div className="spinner" /><p style={{ fontSize: 12, color: 'var(--text-3)' }}>Calculating weighted match scores...</p></div>
+                    ) : matches.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--text-3)', fontSize: 13 }}>
+                            No startups match your criteria right now. Try broadening your industry focus or stage preferences.
+                        </div>
+                    ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+                            {matches.map(m => (
+                                <div key={m.startupId} style={{
+                                    padding: '16px', borderRadius: 10, border: '1px solid var(--border)',
+                                    background: 'rgba(255,255,255,0.02)', display: 'flex', flexDirection: 'column', gap: 8
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <strong style={{ fontSize: 15, color: 'var(--text-1)' }}>{m.startupName}</strong>
+                                        <span className={`badge ${
+                                            m.matchScore >= 80 ? 'badge-green' : m.matchScore >= 60 ? 'badge-amber' : 'badge-purple'
+                                        }`} style={{ fontSize: 11, padding: '3px 8px' }}>
+                                            {m.matchScore}% Match
+                                        </span>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                                        <span className="badge badge-cyan" style={{ fontSize: 10 }}>{m.sector}</span>
+                                        <span className="badge badge-purple" style={{ fontSize: 10 }}>{m.stage}</span>
+                                        {m.investmentPotentialTier && (
+                                            <span className="badge badge-green" style={{ fontSize: 10 }}>⚡ AI {m.investmentPotentialTier.replace('_', ' ')}</span>
+                                        )}
+                                    </div>
+                                    <div style={{ fontSize: 12, color: 'var(--text-2)' }}>
+                                        Ask: <strong>${Number(m.fundingGoal || 0).toLocaleString()}</strong> | Available Equity: <strong>{m.availableEquity || 100}%</strong>
+                                    </div>
+                                    {m.matchReasons && m.matchReasons.length > 0 && (
+                                        <div style={{ fontSize: 11, color: 'var(--teal)', lineHeight: 1.4, borderTop: '1px dashed var(--border)', paddingTop: 6 }}>
+                                            ✓ {m.matchReasons[0]}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             )}
         </div>
     );

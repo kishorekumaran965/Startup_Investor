@@ -74,6 +74,7 @@ export const startupsApi = {
     delete: (id) => api.del(`/startups/${id}`),
     getFundings: (id) => api.get(`/startups/${id}/fundings`),
     assignMentor: (id, mentorId) => api.put(`/startups/${id}/mentor/${mentorId}`),
+    evaluateAi: (id) => api.post(`/startups/${id}/evaluate-ai`),
 };
 
 // Funding Applications
@@ -83,6 +84,24 @@ export const fundingAppApi = {
     getByInvestor: (id) => api.get(`/funding-applications/investor/${id}`),
     getByStartup: (id) => api.get(`/funding-applications/startup/${id}`),
     updateStatus: (id, status) => fetch(`${BASE_URL}/funding-applications/${id}/status?status=${status}`, { method: 'PUT', headers: getHeaders() }).then(handleResponse),
+};
+
+// Fundings & Rounds
+export const fundingsApi = {
+    getAll: () => api.get('/fundings'),
+    getById: (id) => api.get(`/fundings/${id}`),
+    create: (data) => api.post('/fundings', data),
+    update: (id, data) => api.put(`/fundings/${id}`, data),
+    delete: (id) => api.del(`/fundings/${id}`),
+};
+
+// Investments
+export const investmentsApi = {
+    getAll: () => api.get('/investments'),
+    getById: (id) => api.get(`/investments/${id}`),
+    create: (data) => api.post('/investments', data),
+    update: (id, data) => api.put(`/investments/${id}`, data),
+    delete: (id) => api.del(`/investments/${id}`),
 };
 
 // Notifications
@@ -148,6 +167,7 @@ export const patentsApi = {
 export const investorProfilesApi = {
     getByUserId: (userId) => api.get(`/investor-profiles/user/${userId}`),
     updateByUserId: (userId, data) => api.put(`/investor-profiles/user/${userId}`, data),
+    getMatchingStartups: (userId) => api.get(`/investor-profiles/user/${userId}/matching-startups`),
 };
 
 // Documents (Vault)

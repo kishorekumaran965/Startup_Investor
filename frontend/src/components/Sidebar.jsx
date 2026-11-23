@@ -87,6 +87,11 @@ const Icons = {
             <line x1="6" y1="20" x2="6" y2="14" />
         </svg>
     ),
+    Clock: () => (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+        </svg>
+    ),
     Chevron: ({ open }) => (
         <svg
             width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -109,7 +114,7 @@ const NAV = [
     {
         section: 'Startup',
         items: [
-            { to: '/startups', Icon: Icons.Rocket, label: 'Startups', roles: ['STARTUP', 'ADMIN'] },
+            { to: '/startups', Icon: Icons.Rocket, label: 'Startups', roles: ['STARTUP', 'ADMIN', 'INVESTOR'] },
             { to: '/my-ideas', Icon: Icons.Lightbulb, label: 'My Ideas', roles: ['STARTUP'] },
             { to: '/funding-applications', Icon: Icons.DollarSign, label: 'Funding', roles: ['STARTUP', 'INVESTOR', 'ADMIN'] },
             { to: '/document-vault', Icon: Icons.Lock, label: 'Documents', roles: ['STARTUP', 'INVESTOR', 'ADMIN'] },

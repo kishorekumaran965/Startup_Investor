@@ -21,6 +21,33 @@ public class StartupResponseDTO {
     private String industry; // alias for sector, returned for frontend compatibility
     private String stage;
     private Double fundingGoal;
+    private Double availableEquity;
+
+    // Financial Details
+    private Double annualRevenue;
+    private Double monthlyRevenue;
+    private Double annualRevenueGrowth;
+    private Double netProfitLoss;
+    private Double profitMargin;
+    private Double monthlyExpenses;
+    private Double cashBalance;
+    private Double monthlyBurnRate;
+    private Integer runwayMonths;
+    private Double totalFundingRaised;
+    private Double companyValuation;
+    private Double debt;
+    private Double cac;
+    private Double ltv;
+    private Double recurringRevenue;
+    private Double grossProfitMargin;
+    private Double totalAssets;
+    private Double totalLiabilities;
+    private String breakEvenStatus;
+
+    // Prediction output
+    private String investmentPotentialTier;
+    private Double investmentPotentialScore;
+
     private Long userId;
     private UserResponseDTO founder;
     private List<FundingResponseDTO> fundings;

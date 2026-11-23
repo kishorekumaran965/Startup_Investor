@@ -16,6 +16,12 @@ import java.util.List;
 public class StartupController {
 
     private final StartupService startupService;
+    private final com.example.demo.Service.MlPredictionService mlPredictionService;
+
+    @PostMapping("/{id}/evaluate-ai")
+    public java.util.Map<String, Object> evaluateStartupAi(@PathVariable("id") Long id) {
+        return mlPredictionService.evaluateStartupPotential(id);
+    }
 
     @PostMapping
     public StartupResponseDTO createStartup(@RequestBody StartupRequestDTO dto) {

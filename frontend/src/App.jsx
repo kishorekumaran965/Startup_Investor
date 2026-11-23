@@ -25,6 +25,7 @@ import ForumPage from './pages/ForumPage';
 import ProfilePage from './pages/ProfilePage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import UserProfileViewPage from './pages/UserProfileViewPage';
+import StartupTimelinePage from './pages/StartupTimelinePage';
 
 // Spinner for initial auth check
 function SplashLoader() {
@@ -109,8 +110,8 @@ function AppRoutes() {
             <Route element={<AppLayout />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
 
-                {/* Startups - founders & admin */}
-                <Route element={<RoleRoute roles={['STARTUP', 'ADMIN']} />}>
+                {/* Startups - founders, investors & admin */}
+                <Route element={<RoleRoute roles={['STARTUP', 'ADMIN', 'INVESTOR']} />}>
                     <Route path="/startups" element={<StartupsPage />} />
                 </Route>
 
@@ -138,6 +139,7 @@ function AppRoutes() {
                 </Route>
 
                 {/* Common routes for all authenticated users */}
+                <Route path="/timeline" element={<StartupTimelinePage />} />
                 <Route path="/messages" element={<MessagesPage />} />
                 <Route path="/funding-applications" element={<FundingApplicationsPage />} />
                 <Route path="/notifications" element={<NotificationsPage />} />

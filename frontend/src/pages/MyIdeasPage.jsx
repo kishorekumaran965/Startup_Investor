@@ -7,7 +7,12 @@ const STAGES = ['IDEA', 'MVP', 'GROWTH', 'SCALING'];
 const INDUSTRIES = ['Technology', 'Healthcare', 'Finance', 'Education', 'E-commerce', 'Sustainability', 'AI/ML', 'Other'];
 
 function IdeaModal({ idea, onClose, onSave, userId }) {
-    const [form, setForm] = useState(idea || { name: '', description: '', industry: 'Technology', stage: 'IDEA', fundingGoal: '', userId: userId });
+    const [form, setForm] = useState(idea || { 
+        name: '', description: '', industry: 'Technology', stage: 'IDEA', fundingGoal: '', userId: userId,
+        annualRevenue: '', annualRevenueGrowth: '', netProfitLoss: '', monthlyExpenses: '', cashBalance: '',
+        monthlyBurnRate: '', runwayMonths: '12', companyValuation: '', totalFundingRaised: ''
+    });
+    const [showFinancials, setShowFinancials] = useState(Boolean(idea?.annualRevenue || idea?.companyValuation));
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -22,7 +27,7 @@ function IdeaModal({ idea, onClose, onSave, userId }) {
     };
     return (
         <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-            <div className="modal-box">
+            <div className="modal-box" style={{ maxWidth: 660, maxHeight: '90vh', overflowY: 'auto' }}>
                 <div className="modal-header">
                     <h2 className="modal-title">{idea?.id ? '✏️ Edit Idea' : '💡 New Idea'}</h2>
                     <button className="modal-close" onClick={onClose}>✕</button>
@@ -35,7 +40,7 @@ function IdeaModal({ idea, onClose, onSave, userId }) {
                     </div>
                     <div className="form-group">
                         <label className="form-label">Description (Add any details, links, or bullet points)</label>
-                        <textarea name="description" className="form-textarea" rows={6} value={form.description} onChange={handleChange} placeholder="Describe your idea in detail. You can include links to pitch decks, features, etc..." required />
+                        <textarea name="description" className="form-textarea" rows={4} value={form.description} onChange={handleChange} placeholder="Describe your idea in detail. You can include links to pitch decks, features, etc..." required />
                     </div>
                     <div className="grid-2">
                         <div className="form-group">
@@ -51,11 +56,52 @@ function IdeaModal({ idea, onClose, onSave, userId }) {
                             </select>
                         </div>
                     </div>
-                    <div className="form-group">
-                        <label className="form-label">Funding Goal ($)</label>
-                        <input name="fundingGoal" type="number" className="form-input" value={form.fundingGoal} onChange={handleChange} placeholder="500000" />
+                    <div className="grid-2">
+                        <div className="form-group">
+                            <label className="form-label">Funding Goal ($)</label>
+                            <input name="fundingGoal" type="number" className="form-input" value={form.fundingGoal} onChange={handleChange} placeholder="500000" />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Company Valuation ($)</label>
+                            <input name="companyValuation" type="number" className="form-input" value={form.companyValuation || ''} onChange={handleChange} placeholder="3000000" />
+                        </div>
                     </div>
-                    <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+
+                    {/* Financial details toggle */}
+                    <div style={{ marginTop: 12, marginBottom: 12, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                            <span style={{ fontSize: '13px', fontWeight: 'bold' }}>📊 Optional Financials (for AI Evaluation)</span>
+                            <button type="button" className="btn btn-ghost" style={{ fontSize: '11px', padding: '3px 8px' }} onClick={() => setShowFinancials(!showFinancials)}>
+                                {showFinancials ? '▲ Hide' : '▼ Add Details'}
+                            </button>
+                        </div>
+                        {showFinancials && (
+                            <div style={{ background: 'rgba(255,255,255,0.02)', padding: 12, borderRadius: 8, border: '1px solid var(--border)' }}>
+                                <div className="grid-2">
+                                    <div className="form-group">
+                                        <label className="form-label">Annual Revenue ($)</label>
+                                        <input name="annualRevenue" type="number" className="form-input" value={form.annualRevenue || ''} onChange={handleChange} placeholder="e.g. 50000" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Growth Rate (%)</label>
+                                        <input name="annualRevenueGrowth" type="number" className="form-input" value={form.annualRevenueGrowth || ''} onChange={handleChange} placeholder="e.g. 25" />
+                                    </div>
+                                </div>
+                                <div className="grid-2">
+                                    <div className="form-group">
+                                        <label className="form-label">Cash Balance ($)</label>
+                                        <input name="cashBalance" type="number" className="form-input" value={form.cashBalance || ''} onChange={handleChange} placeholder="e.g. 40000" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Runway (Months)</label>
+                                        <input name="runwayMonths" type="number" className="form-input" value={form.runwayMonths || ''} onChange={handleChange} placeholder="12" />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 16 }}>
                         <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
                         <button type="submit" className="btn btn-primary" disabled={loading}>
                             {loading ? 'Saving...' : idea?.id ? 'Update' : 'Publish Idea'}

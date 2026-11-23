@@ -37,6 +37,30 @@ public class StartupServiceImpl implements StartupService {
         dto.setIndustry(startup.getSector()); // alias for frontend
         dto.setStage(startup.getStage());
         dto.setFundingGoal(startup.getFundingGoal());
+        dto.setAvailableEquity(startup.getAvailableEquity());
+
+        // Financial fields mapping
+        dto.setAnnualRevenue(startup.getAnnualRevenue());
+        dto.setMonthlyRevenue(startup.getMonthlyRevenue());
+        dto.setAnnualRevenueGrowth(startup.getAnnualRevenueGrowth());
+        dto.setNetProfitLoss(startup.getNetProfitLoss());
+        dto.setProfitMargin(startup.getProfitMargin());
+        dto.setMonthlyExpenses(startup.getMonthlyExpenses());
+        dto.setCashBalance(startup.getCashBalance());
+        dto.setMonthlyBurnRate(startup.getMonthlyBurnRate());
+        dto.setRunwayMonths(startup.getRunwayMonths());
+        dto.setTotalFundingRaised(startup.getTotalFundingRaised());
+        dto.setCompanyValuation(startup.getCompanyValuation());
+        dto.setDebt(startup.getDebt());
+        dto.setCac(startup.getCac());
+        dto.setLtv(startup.getLtv());
+        dto.setRecurringRevenue(startup.getRecurringRevenue());
+        dto.setGrossProfitMargin(startup.getGrossProfitMargin());
+        dto.setTotalAssets(startup.getTotalAssets());
+        dto.setTotalLiabilities(startup.getTotalLiabilities());
+        dto.setBreakEvenStatus(startup.getBreakEvenStatus());
+        dto.setInvestmentPotentialTier(startup.getInvestmentPotentialTier());
+        dto.setInvestmentPotentialScore(startup.getInvestmentPotentialScore());
 
         if (startup.getFounder() != null) {
             dto.setUserId(startup.getFounder().getId());
@@ -117,6 +141,7 @@ public class StartupServiceImpl implements StartupService {
         startup.setStage(dto.getStage());
         startup.setFundingGoal(dto.getFundingGoal());
         startup.setFounder(user);
+        applyFinancialsFromDTO(startup, dto);
 
         Startup saved = startupRepository.save(startup);
 
@@ -164,9 +189,68 @@ public class StartupServiceImpl implements StartupService {
         startup.setSector(dto.getResolvedSector());
         startup.setStage(dto.getStage());
         startup.setFundingGoal(dto.getFundingGoal());
+        applyFinancialsFromDTO(startup, dto);
 
         Startup saved = startupRepository.save(startup);
         return convertToDTO(saved);
+    }
+
+    private void applyFinancialsFromDTO(Startup startup, StartupRequestDTO dto) {
+        if (dto.getAnnualRevenue() != null) startup.setAnnualRevenue(dto.getAnnualRevenue());
+        if (dto.getMonthlyRevenue() != null) startup.setMonthlyRevenue(dto.getMonthlyRevenue());
+        if (dto.getAnnualRevenueGrowth() != null) startup.setAnnualRevenueGrowth(dto.getAnnualRevenueGrowth());
+        if (dto.getNetProfitLoss() != null) startup.setNetProfitLoss(dto.getNetProfitLoss());
+        if (dto.getProfitMargin() != null) startup.setProfitMargin(dto.getProfitMargin());
+        if (dto.getMonthlyExpenses() != null) startup.setMonthlyExpenses(dto.getMonthlyExpenses());
+        if (dto.getCashBalance() != null) startup.setCashBalance(dto.getCashBalance());
+        if (dto.getMonthlyBurnRate() != null) startup.setMonthlyBurnRate(dto.getMonthlyBurnRate());
+        if (dto.getRunwayMonths() != null) startup.setRunwayMonths(dto.getRunwayMonths());
+        if (dto.getTotalFundingRaised() != null) startup.setTotalFundingRaised(dto.getTotalFundingRaised());
+        if (dto.getCompanyValuation() != null) startup.setCompanyValuation(dto.getCompanyValuation());
+        if (dto.getDebt() != null) startup.setDebt(dto.getDebt());
+        if (dto.getCac() != null) startup.setCac(dto.getCac());
+        if (dto.getLtv() != null) startup.setLtv(dto.getLtv());
+        if (dto.getRecurringRevenue() != null) startup.setRecurringRevenue(dto.getRecurringRevenue());
+        if (dto.getGrossProfitMargin() != null) startup.setGrossProfitMargin(dto.getGrossProfitMargin());
+        if (dto.getTotalAssets() != null) startup.setTotalAssets(dto.getTotalAssets());
+        if (dto.getTotalLiabilities() != null) startup.setTotalLiabilities(dto.getTotalLiabilities());
+        if (dto.getBreakEvenStatus() != null) startup.setBreakEvenStatus(dto.getBreakEvenStatus());
+        if (dto.getAvailableEquity() != null) startup.setAvailableEquity(dto.getAvailableEquity());
+
+        // Baseline assessment based on financial & stage indicators
+        calculateHeuristicPotential(startup);
+    }
+
+    private void calculateHeuristicPotential(Startup startup) {
+        double score = 50.0; // Base score
+
+        if (startup.getAnnualRevenue() != null && startup.getAnnualRevenue() > 50000) score += 10;
+        if (startup.getAnnualRevenueGrowth() != null && startup.getAnnualRevenueGrowth() > 20) score += 10;
+        if (startup.getNetProfitLoss() != null && startup.getNetProfitLoss() >= 0) score += 10;
+
+        if (startup.getRunwayMonths() != null) {
+            if (startup.getRunwayMonths() >= 12) score += 10;
+            else if (startup.getRunwayMonths() < 6) score -= 15;
+        }
+
+        if (startup.getCac() != null && startup.getCac() > 0 && startup.getLtv() != null) {
+            double ratio = startup.getLtv() / startup.getCac();
+            if (ratio >= 3.0) score += 15;
+            else if (ratio < 1.0) score -= 10;
+        }
+
+        if (startup.getMentor() != null) score += 5;
+
+        score = Math.max(0.0, Math.min(100.0, score));
+        startup.setInvestmentPotentialScore(score);
+
+        if (score >= 70.0) {
+            startup.setInvestmentPotentialTier("HIGH_POTENTIAL");
+        } else if (score >= 45.0) {
+            startup.setInvestmentPotentialTier("MODERATE_POTENTIAL");
+        } else {
+            startup.setInvestmentPotentialTier("LOW_POTENTIAL");
+        }
     }
 
     @Override

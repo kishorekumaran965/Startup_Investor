@@ -54,6 +54,67 @@ public class Startup {
     @Column(nullable = false, columnDefinition = "double default 100.0")
     private Double availableEquity = 100.0;
 
+    // --- Financial Details for AI Investment Potential Prediction ---
+    @Column(columnDefinition = "double default 0.0")
+    private Double annualRevenue = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double monthlyRevenue = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double annualRevenueGrowth = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double netProfitLoss = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double profitMargin = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double monthlyExpenses = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double cashBalance = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double monthlyBurnRate = 0.0;
+
+    @Column(columnDefinition = "integer default 12")
+    private Integer runwayMonths = 12;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double totalFundingRaised = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double companyValuation = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double debt = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double cac = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double ltv = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double recurringRevenue = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double grossProfitMargin = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double totalAssets = 0.0;
+
+    @Column(columnDefinition = "double default 0.0")
+    private Double totalLiabilities = 0.0;
+
+    private String breakEvenStatus = "Pre-Breakeven"; // "Pre-Breakeven" or "Profitable" / "Breakeven"
+
+    // Investment potential prediction cache / score
+    private String investmentPotentialTier; // "HIGH_POTENTIAL", "MODERATE_POTENTIAL", "LOW_POTENTIAL"
+    private Double investmentPotentialScore; // 0.0 - 100.0 or 0.0 - 1.0 confidence
+
     @JsonIgnore
     @OneToMany(mappedBy = "startup", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CapTableEntry> capTable = new ArrayList<>();

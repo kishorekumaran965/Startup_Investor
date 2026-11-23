@@ -20,6 +20,28 @@ public class StartupRequestDTO {
     private String stage;
     private Double fundingGoal;
 
+    // Financial Details
+    private Double annualRevenue;
+    private Double monthlyRevenue;
+    private Double annualRevenueGrowth;
+    private Double netProfitLoss;
+    private Double profitMargin;
+    private Double monthlyExpenses;
+    private Double cashBalance;
+    private Double monthlyBurnRate;
+    private Integer runwayMonths;
+    private Double totalFundingRaised;
+    private Double companyValuation;
+    private Double debt;
+    private Double cac;
+    private Double ltv;
+    private Double recurringRevenue;
+    private Double grossProfitMargin;
+    private Double totalAssets;
+    private Double totalLiabilities;
+    private String breakEvenStatus;
+    private Double availableEquity;
+
     // Accept both "userId" (frontend) and "founderId" (legacy)
     private Long userId;
     private Long founderId;
