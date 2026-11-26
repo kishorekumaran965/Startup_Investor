@@ -26,6 +26,7 @@ import ProfilePage from './pages/ProfilePage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import UserProfileViewPage from './pages/UserProfileViewPage';
 import StartupTimelinePage from './pages/StartupTimelinePage';
+import AiAdvisorPage from './pages/AiAdvisorPage';
 
 // Spinner for initial auth check
 function SplashLoader() {
@@ -149,6 +150,16 @@ function AppRoutes() {
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/change-password" element={<ChangePasswordPage />} />
                 <Route path="/users/:userId" element={<UserProfileViewPage />} />
+
+                {/* AI Advisor - startup founders and admin */}
+                <Route element={<RoleRoute roles={['STARTUP', 'ADMIN']} />}>
+                    <Route path="/ai-advisor" element={<AiAdvisorPage />} />
+                </Route>
+
+                {/* AI Advisor - STARTUP and ADMIN */}
+                <Route element={<RoleRoute roles={['STARTUP', 'ADMIN']} />}>
+                    <Route path="/ai-advisor" element={<AiAdvisorPage />} />
+                </Route>
 
                 {/* Admin-only */}
                 <Route element={<AdminRoute />}>

@@ -219,3 +219,28 @@ export const forumApi = {
 export const capTableApi = {
     getForStartup: (startupId) => api.get(`/captable/startup/${startupId}`),
 };
+
+// AI Business Advisor (RAG)
+export const aiApi = {
+    // Documents
+    uploadDocument: (startupId, name, file) => {
+        const formData = new FormData();
+        formData.append('startupId', startupId);
+        formData.append('name', name);
+        formData.append('file', file);
+        const token = localStorage.getItem('token');
+        return fetch(`${BASE_URL}/ai/documents/upload`, {
+            method: 'POST',
+            headers: { ...(token ? { Authorization: `Bearer ${token.trim()}` } : {}) },
+            body: formData,
+        }).then(handleResponse);
+    },
+    getDocuments: (startupId) => api.get(`/ai/documents/startup/${startupId}`),
+    deleteDocument: (docId) => api.del(`/ai/documents/${docId}`),
+
+    // Chat
+    chat: (data) => api.post('/ai/chat', data),
+    getConversations: (startupId) => api.get(`/ai/conversations${startupId ? `?startupId=${startupId}` : ''}`),
+    getConversation: (id) => api.get(`/ai/conversations/${id}`),
+    deleteConversation: (id) => api.del(`/ai/conversations/${id}`),
+};

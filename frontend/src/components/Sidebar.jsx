@@ -42,6 +42,12 @@ const Icons = {
             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
         </svg>
     ),
+    Brain: () => (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-1.07-4.14A3 3 0 0 1 2 12a3 3 0 0 1 4-2.83 2.5 2.5 0 0 1 4.5-1.17z"/>
+            <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 1.07-4.14A3 3 0 0 0 22 12a3 3 0 0 0-4-2.83 2.5 2.5 0 0 0-4.5-1.17z"/>
+        </svg>
+    ),
     Search: () => (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -118,6 +124,7 @@ const NAV = [
             { to: '/my-ideas', Icon: Icons.Lightbulb, label: 'My Ideas', roles: ['STARTUP'] },
             { to: '/funding-applications', Icon: Icons.DollarSign, label: 'Funding', roles: ['STARTUP', 'INVESTOR', 'ADMIN'] },
             { to: '/document-vault', Icon: Icons.Lock, label: 'Documents', roles: ['STARTUP', 'INVESTOR', 'ADMIN'] },
+            { to: '/ai-advisor', Icon: Icons.Brain, label: 'AI Advisor', roles: ['STARTUP', 'ADMIN'] },
         ],
     },
     {

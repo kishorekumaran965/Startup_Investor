@@ -74,7 +74,7 @@ class StartupEvaluationResponse(BaseModel):
     probabilities: Dict[str, float]
     key_drivers: List[str]
     risk_factors: List[str]
-
+ 
 @app.get("/health")
 def health_check():
     return {

@@ -18,10 +18,13 @@ public class Startup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 500)
     private String name;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(length = 255)
     private String sector;
 
     private String stage; // Idea / Prototype / Scaling
